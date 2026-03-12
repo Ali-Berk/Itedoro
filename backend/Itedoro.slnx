@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="Itedoro.Api/Itedoro.Api.csproj" />
+  <Project Path="Itedoro.Business/Itedoro.Business.csproj" />
+  <Project Path="Itedoro.Data/Itedoro.Data.csproj" />
+</Solution>
