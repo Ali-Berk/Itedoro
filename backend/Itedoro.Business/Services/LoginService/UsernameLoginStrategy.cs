@@ -1,19 +1,17 @@
 using Itedoro.Business.Services.LoginService.Dtos;
-using Itedoro.Business.Services.UserServices;
+using Microsoft.EntityFrameworkCore;
 using Itedoro.Data.Entities.Users;
+using Itedoro.Data;
 
 namespace Itedoro.Business.Services.LoginService;
 
-public class UsernameLoginStrategy : ILoginStrategy
+public class UsernameLoginStrategy(
+    ItedoroDbContext dbContext
+) : ILoginStrategy
 {
-    private readonly IUserService _userManager;
-    public UsernameLoginStrategy(IUserService userManager)
-    {
-        _userManager = userManager;
-    }
     public bool CanHandle(LoginRequestDto request) => !request.LoginHandle.Contains("@");
-    public async Task<User?> LoginAsync(LoginRequestDto request)
+    public async Task<User?> LoginAsync(LoginRequestDto loginRequest)
     {
-        return await _userManager.GetByUsernameAsync(request.LoginHandle);
+        return await dbContext.Users.AsNoTracking().Include(u => u.Role).FirstOrDefaultAsync(u => u.Username == loginRequest.LoginHandle);
     }
 }

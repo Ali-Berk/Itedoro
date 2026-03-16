@@ -1,62 +1,76 @@
+namespace Itedoro.Business.Services.TokenService;
 
-using Itedoro.Data.Entities.Users;
+using Microsoft.EntityFrameworkCore;
+using Itedoro.Business.Services.TokenService.Helpers;
 using Microsoft.Extensions.Configuration;
-﻿using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Security.Cryptography;
 using System.Text;
-using Itedoro.Business.Services.UserServices;
-using Microsoft.EntityFrameworkCore;
+using System.Security.Cryptography;
 using Itedoro.Data;
+using Itedoro.Data.Entities.Users;
+using Itedoro.Business.Shared.Result;
 
-namespace Itedoro.Business.Services.TokenService;
 public class TokenManager(
     IConfiguration config,
-    IUserService userManager,
     ItedoroDbContext context
 ) : ITokenService
 {
-
-    public string GenereteAccessToken(User user)
+    // getvalue'lar constructor içinde tanımlanacak.
+    public string GenerateAccessToken(User user)
     {
-        var refreshToken = context.RefreshTokens.FirstOrDefault(t => user.Id == t.UserId);
         var claims = new List<Claim>
         {
             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new Claim(ClaimTypes.Name, user.Username.ToString()),
-            new Claim(ClaimTypes.Role, user.Role.Name.ToString()),
+            new Claim(ClaimTypes.Name, user.Username),
+            new Claim(ClaimTypes.Role, user.Role?.Name ?? "User"),
         };
 
-        var key = new SymmetricSecurityKey(
+        var secretKey = new SymmetricSecurityKey(
             Encoding.UTF8.GetBytes(config.GetValue<string>("AppSettings:Token")!));
         
-        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512);
+        var credentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha512);
+        var expiresMinutes = config.GetValue<int>("AppSettings:ExpireMinutes");
 
-        var tokenDescriptor = new JwtSecurityToken(
+        var jwtToken = new JwtSecurityToken(
             issuer: config.GetValue<string>("AppSettings:Issuer"),
             audience: config.GetValue<string>("AppSettings:Audience"),
             claims: claims,
-            expires: DateTime.UtcNow.AddMinutes(15),
-            signingCredentials: creds
+            expires: DateTime.UtcNow.AddMinutes(expiresMinutes),
+            signingCredentials: credentials
         );
-        return new JwtSecurityTokenHandler().WriteToken(tokenDescriptor);
+        return new JwtSecurityTokenHandler().WriteToken(jwtToken);
     }
 
-    public string GenereteRefreshToken()
+    public (RefreshToken Entity, string rawToken) CreateRefreshToken(Guid userId)
     {
-        var randomNumber = new byte[32];
-        using var rng = RandomNumberGenerator.Create();
-        rng.GetBytes(randomNumber);
-        return Convert.ToBase64String(randomNumber);
+        var expireDays = config.GetValue<int>("AppSettings:ExpireDays");
+        
+        string rawToken = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32));
+        
+        return
+        (
+            new RefreshToken(
+                Sha256Hasher.ComputeHash(rawToken),
+                userId,
+                DateTime.UtcNow.AddDays(expireDays)),
+                rawToken);
     }
 
-    public async Task<string> AsyncGenerateAndSaveRefreshToken(User user)
+    public async Task<Result<string>> RefreshAsync(string refreshToken)
     {
-        var refreshToken = GenereteRefreshToken();
-        var refreshTokenEntity = new RefreshToken(refreshToken, user.Id, DateTime.UtcNow.AddDays(7));
-        await userManager.CreateRefreshTokenAsync(refreshTokenEntity);
-        return refreshToken;
+        var hashedToken = Sha256Hasher.ComputeHash(refreshToken);
+        var exist = await context.RefreshTokens
+            .Include(t => t.User).Include(t => t.User.Role)
+            .FirstOrDefaultAsync(t => t.Token == hashedToken);
+
+        if (exist == null || exist.IsExpired)
+        {
+            return Result<string>.Failure(errors: new[] { "Invalid Refresh Token." });
+        }
+        
+        var accessToken = GenerateAccessToken(exist.User);
+        return Result<string>.Success(accessToken);
     }
 }

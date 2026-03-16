@@ -1,11 +1,13 @@
 using Itedoro.Data.Entities.Users;
+using Itedoro.Business.Shared.Result;
 
 namespace Itedoro.Business.Services.TokenService;
 public interface ITokenService
 {
-    string GenereteAccessToken(User user);
+    string GenerateAccessToken(User user);
 
-    string GenereteRefreshToken();
 
-    Task<string> AsyncGenerateAndSaveRefreshToken(User user);
+    (RefreshToken Entity, string rawToken) CreateRefreshToken(Guid userId);
+
+    Task<Result<string>> RefreshAsync(string refreshToken);
 }

@@ -3,38 +3,50 @@ using Itedoro.Business.Services.LoginService.Dtos;
 using Itedoro.Business.Services.UserServices;
 using Itedoro.Business.Services.TokenService;
 using Itedoro.Data.Entities.Users;
+﻿using Microsoft.AspNetCore.Identity;
+using Itedoro.Business.Shared.Result;
+using Itedoro.Data;
 
 namespace Itedoro.Business.Services.LoginService;
-public class LoginManager : ILoginService
+public class LoginManager(
+    IPasswordHasher<User> passwordHasher,
+    ITokenService tokenManager,
+    ItedoroDbContext dbContext,
+    IEnumerable<ILoginStrategy> strategies
+) : ILoginService
 {
-    ITokenService _tokenManager;
-    private readonly IUserService _userManager;
-    private readonly IEnumerable<ILoginStrategy> _strategies;
-    private readonly IMapper _mapper;
-    public LoginManager(IUserService userManager, IEnumerable<ILoginStrategy> strategies, IMapper mapper, ITokenService tokenManager)
-    {
-        _tokenManager = tokenManager;
-        _userManager = userManager;
-        _strategies = strategies;
-        _mapper = mapper;
-    }
-
-    public async Task<LoginResponseDto?> LoginAsync(LoginRequestDto request)
+    public async Task<Result<AuthTokens>> LoginAsync(LoginRequestDto request)
     {        
-        var strategy = _strategies.FirstOrDefault(s => s.CanHandle(request));
-        if (strategy == null) return null;
+        var strategy = strategies.FirstOrDefault(s => s.CanHandle(request));
+        if (strategy == null) return Result<AuthTokens>.Failure("Invalid login handle.");
 
         var user = await strategy.LoginAsync(request);
-        if (user == null) return null;
+        if (user == null) return Result<AuthTokens>.Failure("User not found.");
 
-        if (!_userManager.VerifyPassword(user, request.Password)) return null;
-        
-        var response = _mapper.Map<LoginResponseDto>(user);
+        var verificationResult = passwordHasher.VerifyHashedPassword(user, user.PasswordHash, request.Password);
 
-        response.RefreshToken = await _tokenManager.AsyncGenerateAndSaveRefreshToken(user);
-        response.AccessToken = _tokenManager.GenereteAccessToken(user);
-        response.ExpiresAt = DateTime.UtcNow.AddDays(1);
-        
-        return response;
+        if (verificationResult == PasswordVerificationResult.Failed)
+        {
+            return Result<AuthTokens>.Failure("Wrong password.");
+        }
+
+        if (verificationResult == PasswordVerificationResult.SuccessRehashNeeded)
+        {
+            var rehashedPassword = passwordHasher.HashPassword(user, request.Password);
+            user.UpdatePasswordHash(rehashedPassword);
+            await dbContext.SaveChangesAsync();
+        }
+
+        var (refreshTokenEntity, rawRefreshToken) = tokenManager.CreateRefreshToken(user.Id);
+        var accessToken = tokenManager.GenerateAccessToken(user);
+
+        dbContext.RefreshTokens.Add(refreshTokenEntity);
+        await dbContext.SaveChangesAsync();
+
+        return Result<AuthTokens>.Success(new AuthTokens
+        {
+            AccessToken = accessToken,
+            RefreshToken = rawRefreshToken
+        });
     }
 }

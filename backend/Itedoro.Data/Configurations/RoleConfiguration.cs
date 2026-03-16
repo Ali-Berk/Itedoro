@@ -10,8 +10,8 @@ public class RoleConfiguration : IEntityTypeConfiguration<Role>
     public void Configure(EntityTypeBuilder<Role> builder)
     {
         builder.HasData(
-            new Role { Id = AdminRoleId, Name = "Admin" },
-            new Role { Id = UserRoleId, Name = "User" }
+            new Role("Admin") { Id = AdminRoleId },
+            new Role("User") { Id = UserRoleId }
         );
     }
 }
