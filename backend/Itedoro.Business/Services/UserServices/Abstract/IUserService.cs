@@ -11,6 +11,8 @@ namespace Itedoro.Business.Services.UserServices
         Task<User?> GetByUsernameAsync(string user);
 
         bool VerifyPassword(User user, string password);
+        Task<bool> saveAsync();
 
+        Task<bool> CreateRefreshTokenAsync(RefreshToken token);
     }
 }

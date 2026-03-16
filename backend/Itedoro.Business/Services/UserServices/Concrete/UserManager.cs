@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Itedoro.Data;
 using Itedoro.Data.Entities.Users;
+using Microsoft.EntityFrameworkCore.Query;
+
 
 namespace Itedoro.Business.Services.UserServices
 {
@@ -60,6 +62,35 @@ namespace Itedoro.Business.Services.UserServices
                 return true;
                 case PasswordVerificationResult.Failed:
                 default:
+                return false;
+            }
+        }
+    
+        public async Task<bool> saveAsync()
+        {
+            return await _context.SaveChangesAsync() > 0;
+        }
+
+        public async Task<bool> CreateRefreshTokenAsync(RefreshToken newToken)
+        {
+            if (!await RevokeRefreshTokenAsync(newToken.UserId)){return false;}
+            await _context.RefreshTokens.AddAsync(newToken);
+            return await _context.SaveChangesAsync() > 0;
+        }
+
+        public async Task<bool> RevokeRefreshTokenAsync(Guid userId){
+            try
+            {
+                var userTokens = await _context.RefreshTokens.Where(t => t.UserId == userId).ToListAsync();
+                if (userTokens.Any())
+                {
+                    _context.RefreshTokens.RemoveRange(userTokens);
+                    await _context.SaveChangesAsync();
+                }
+                return true;
+            }
+            catch (Exception)
+            {
                 return false;
             }
         }

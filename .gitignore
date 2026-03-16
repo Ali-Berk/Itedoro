@@ -1,11 +1,10 @@
 # --- Build Çıktıları (.NET) ---
 [Bb]in/
 [Oo]bj/
-# İsmi doğrudan hedef al (Escape karakteri ile)
-bin\\debug/
-bin\\debug
 
+# Windows için oluşturulmuş debug dosyası için. bin\debug
 *\\*
+
 # --- IDE ve Editör Dosyaları ---
 .vscode/
 .vs/

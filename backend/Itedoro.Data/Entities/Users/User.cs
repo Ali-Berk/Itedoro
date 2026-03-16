@@ -15,7 +15,7 @@ namespace Itedoro.Data.Entities.Users
         public DateTime? UpdatedAt { get; set;} = null;
         public bool IsDeleted { get; set;} = false;
 
-        public Guid RoleId { get; set;} = Guid.Parse("00000000-0000-0000-0000-000000000001");
+        public Guid RoleId { get; set;} = Guid.Parse("F9E8D7C6-B5A4-4F3E-2D1C-0B9A8F7E6D5C");
         public Role Role { get; set;}
     }
 }

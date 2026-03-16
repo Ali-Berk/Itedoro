@@ -3,6 +3,7 @@ using System;
 using Itedoro.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Itedoro.Data.Migrations
 {
     [DbContext(typeof(ItedoroDbContext))]
-    partial class ItedoroDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260311135530_DockerConnectionMigration")]
+    partial class DockerConnectionMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -47,32 +50,6 @@ namespace Itedoro.Data.Migrations
                             Id = new Guid("f9e8d7c6-b5a4-4f3e-2d1c-0b9a8f7e6d5c"),
                             Name = "User"
                         });
-                });
-
-            modelBuilder.Entity("Itedoro.Data.Entities.Users.RefreshToken", b =>
-                {
-                    b.Property<Guid>("TokenId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime>("ExpiryTime")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Token")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("TokenId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("RefreshTokens");
                 });
 
             modelBuilder.Entity("Itedoro.Data.Entities.Users.User", b =>
@@ -123,17 +100,6 @@ namespace Itedoro.Data.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("Users");
-                });
-
-            modelBuilder.Entity("Itedoro.Data.Entities.Users.RefreshToken", b =>
-                {
-                    b.HasOne("Itedoro.Data.Entities.Users.User", "user")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("user");
                 });
 
             modelBuilder.Entity("Itedoro.Data.Entities.Users.User", b =>

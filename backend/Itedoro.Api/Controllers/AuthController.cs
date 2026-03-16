@@ -1,22 +1,24 @@
 using Itedoro.Business.Services.RegisterService;
 using Itedoro.Business.Services.RegisterService.Dtos;
 using Microsoft.AspNetCore.Mvc;
-using FluentValidation;
 using Itedoro.Business.Services.LoginService.Dtos;
 using Itedoro.Business.Services.LoginService;
+using Itedoro.Data.Entities.Users;
+using Itedoro.Business.Services.TokenService;
+using Microsoft.EntityFrameworkCore;
+using Itedoro.Data;
+
 namespace Itedoro.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class AuthController : ControllerBase
+public class AuthController(
+    ITokenService _tokenService,
+    ILoginService _loginService,
+    IRegisterService _registerService,
+    ItedoroDbContext context
+) : ControllerBase
 {
-    private readonly IRegisterService _registerService;
-    private readonly ILoginService _loginService;
-    public AuthController(IRegisterService registerService, ILoginService loginService)
-    {
-        _registerService = registerService;
-        _loginService = loginService;
-    }
 
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterRequestDto request)
@@ -41,10 +43,25 @@ public class AuthController : ControllerBase
         return BadRequest(new {message = "Kullanıcı girişi onaylanmadı."});
     }
 
+    [HttpPost("refresh")]
+    public async Task<IActionResult> Refresh([FromBody] string refreshToken)
+    {
+        var exist = await context.RefreshTokens
+            .Include(t => t.user).Include(t => t.user.Role)
+            .FirstOrDefaultAsync(t => t.Token == refreshToken);
+
+        if (exist == null || exist.IsExpired)
+        {
+            return BadRequest("Invalid refresh token.");
+        }
+        var accessToken = _tokenService.GenereteAccessToken(exist.user);
+        return Ok(accessToken);
+    }
+
 
     [HttpGet("test")]
     public string Test()
     {
-        return "Controller calisiyor, veritabanina giden yol acik!";
+        return "Controller calisiyor";
     }
 }

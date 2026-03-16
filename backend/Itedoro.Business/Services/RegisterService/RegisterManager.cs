@@ -22,7 +22,6 @@ public class RegisterManager : IRegisterService
             Email = request.Email,
             Name = request.Name,
             Surname = request.Surname,
-            CreatedAt = DateTime.UtcNow
         };
 
         return await _userManager.CreateAsync(newUser, request.Password);

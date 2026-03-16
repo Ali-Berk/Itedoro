@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  backend-api:
+    image: itedoro-backend:latest
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Host=postgres-db;Port=5432;Database=ItedoroDb;Username=aliberk;Password=aliberk
+    depends_on:
+      - postgres-db
+
+  postgres-db:
+    image: postgres:15-alpine
+    container_name: itedoro_database
+    environment:
+      - POSTGRES_DB=ItedoroDb
+      - POSTGRES_USER=aliberk
+      - POSTGRES_PASSWORD=aliberk
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data 
+
+volumes:
+  pgdata:

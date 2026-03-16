@@ -9,17 +9,20 @@ public class RegisterRequestValidator : AbstractValidator<RegisterRequestDto>
     public RegisterRequestValidator()
     {
         RuleFor(x => x.Email)
-            .NotEmpty().WithMessage("Email is required.")
-            .EmailAddress().WithMessage("Invalid email address.");
+            .NotEmpty()
+            .WithMessage("Email or Username is required.")
+            .When(x => string.IsNullOrEmpty(x.Username))
+            .EmailAddress()
+            .WithMessage("Invalid email address.")
+            .When(x => !string.IsNullOrEmpty(x.Email));
 
         RuleFor(x => x.Password)
             .NotEmpty().WithMessage("Password is required.")
             .MinimumLength(6).WithMessage("Password must be at least 6 characters long.");
-
-        RuleFor(x => x.RoleId)
-            .NotEmpty().WithMessage("Role ID is required.");
             
         RuleFor(x => x.Username)
-            .NotEmpty().WithMessage("Username is required.");
+            .NotEmpty()
+            .WithMessage("Username or Email is required.")
+            .When(x => string.IsNullOrEmpty(x.Email));
     }
 }
