@@ -6,7 +6,7 @@ namespace Itedoro.Data.Entities.Users
         [Key]
         public Guid TokenId { get; init; }
         
-        public string Token { get; private set; }
+        public string Token { get; private set; } = null!;
         public DateTime ExpiryTime { get; private set; }
         public DateTime CreatedAt { get; init; }
         

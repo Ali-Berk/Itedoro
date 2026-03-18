@@ -5,6 +5,9 @@ using Itedoro.Business;
 using Itedoro.Data.Entities.Users;
 using Itedoro.Business.Services.LoginService;
 
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
@@ -14,7 +17,24 @@ builder.Services.AddDbContext<ItedoroDbContext>(options =>
 
 builder.Services.AddBusinessServices();
 
-
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = builder.Configuration["AppSettings:Issuer"],
+        ValidAudience = builder.Configuration["AppSettings:Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["AppSettings:Token"]))
+    };
+});
 
 //Swagger
 builder.Services.AddEndpointsApiExplorer();
@@ -52,7 +72,7 @@ if (app.Environment.IsDevelopment())
 }
 
 // app.UseHttpsRedirection(); 
-
+app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
