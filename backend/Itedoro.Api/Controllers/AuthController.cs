@@ -46,11 +46,4 @@ public class AuthController(
         }
         return BadRequest(result?.Errors);
     }
-
-
-    [HttpGet("test")]
-    public string Test()
-    {
-        return "Controller calisiyor";
-    }
 }

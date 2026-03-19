@@ -7,6 +7,7 @@
 
 # --- IDE ve Editör Dosyaları ---
 .vscode/
+/backend/.aiassistant/*
 .vs/
 *.user
 *.http
@@ -40,3 +41,4 @@ yarn-debug.log*
 # --- İşletim Sistemi ---
 .DS_Store
 Thumbs.db
+

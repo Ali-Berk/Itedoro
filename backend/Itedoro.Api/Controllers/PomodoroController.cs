@@ -32,9 +32,9 @@ public class PomodoroController(
             errors = result.Errors
         });
     }
-    //TODO: Pause ve resume için isteği urlden al
-    [HttpPost("pause")]
-    public async Task<IActionResult> Pause([FromBody] Guid parentPomodoroSessionId)
+    //DONE: Pause ve resume için isteği urlden al
+    [HttpPost("pause/{parentPomodoroSessionId}")]
+    public async Task<IActionResult> Pause(Guid parentPomodoroSessionId)
     {
         var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
         Guid.TryParse(userIdString, out Guid userId);
@@ -42,17 +42,12 @@ public class PomodoroController(
         return Ok();
     }
 
-    [HttpPost("resume")]
-    public async Task<IActionResult> Resume([FromBody] Guid parentPomodoroSessionId)
+    [HttpPost("resume/{parentPomodoroSessionId}")]
+    public async Task<IActionResult> Resume(Guid parentPomodoroSessionId)
     {
         var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
         Guid.TryParse(userIdString, out Guid userId);
         var result = await pomodoroService.ResumeSessionAsync(userId, parentPomodoroSessionId);
         return Ok();
-    }
-    [HttpGet("test")]
-    public string Test()
-    {
-        return "Pomodoro Controller calisiyor";
     }
 }

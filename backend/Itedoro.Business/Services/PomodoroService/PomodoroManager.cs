@@ -31,7 +31,7 @@ public class PomodoroManager(
     private async Task<ParentSession?> FindPausedSessionAsync(Guid userId)
     {
         return await
-            dbContext.ParentSessions.FirstOrDefaultAsync(s => s.UserId == userId && s.Status == PomodoroStatus.Paused;
+            dbContext.ParentSessions.FirstOrDefaultAsync(s => s.UserId == userId && s.Status == PomodoroStatus.Paused);
     }
         
     public async Task<Result<ParentSession>> CreateSessionAsync(Guid userId, PomodoroPreferencesDto dto)
