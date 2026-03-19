@@ -4,5 +4,5 @@ public enum PomodoroStatus
     Complated = 2,
     Canceled = 3,
     Failed = 4,
-
+    Paused = 5
 }

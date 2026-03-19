@@ -8,10 +8,12 @@ public class ParentSession
 
     public int TotalPlannedMinutes {get; set;}
 
-    public PomodoroStatus Status {get; set;}
+    public PomodoroStatus Status { get; set; }
 
     public DateTime StartTime { get; init;}
-    public DateTime? EndTime {get; set;}
+    public DateTime EndTime {get; set;}
+    public DateTime? PauseStart { get; set; }
+    public DateTime? PauseStop { get; set; }
     
     public string? Note {get; set;}
 

@@ -6,7 +6,7 @@ public class ChildSession
     public Guid ParentSessionId {get; init;}
 
     public PomodoroType Type {get; init;}
-    public PomodoroStatus Status {get; private set;}
+    public PomodoroStatus Status {get; set;}
 
     public int PlannedDurationMinutes {get; init;}
 

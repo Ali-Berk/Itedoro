@@ -3,6 +3,7 @@ using System;
 using Itedoro.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Itedoro.Data.Migrations
 {
     [DbContext(typeof(ItedoroDbContext))]
-    partial class ItedoroDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260319110201_UpdatePomodoroSession")]
+    partial class UpdatePomodoroSession
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -10,6 +10,9 @@ public interface IPomodoroService
 {
     Task<Result<ParentSession>> CreateSessionAsync(Guid userId, PomodoroPreferencesDto dto);
 
+    Task<Result> PauseSessionAsync(Guid userId, Guid parentId);
+    Task<Result> ResumeSessionAsync(Guid userId, Guid parentId);
+
     // Task<Result> StopSessionAsync(Guid sessionId);
     // Task<Result<ParentSession>> GetActiveSessionAsync(Guid userId);
 }
