@@ -16,11 +16,14 @@ public class AuthController(
     IRegisterService registerService
 ) : ControllerBase
 {
-
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterRequestDto request)
     {
         var result = await registerService.RegisterAsync(request);
+        if (result.IsFailure)
+        {
+            return BadRequest(result.Errors);
+        }
         return Ok(result);
     }
     
@@ -33,9 +36,10 @@ public class AuthController(
             return Ok(result);
         }
 
-        return BadRequest(new {message = "User login failed."});
+        return BadRequest(result?.Errors);
     }
 
+    //TODO:Refresh için validation ekle.
     [HttpPost("refresh")]
     public async Task<IActionResult> Refresh([FromBody] string refreshToken)
     {

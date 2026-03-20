@@ -13,6 +13,7 @@ public class PomodoroController(
     IPomodoroService pomodoroService
 ) : ControllerBase
 {
+    //TODO: Geçmiş pomodoroların listelenmesi için bir endpoint oluştur.
 
     [HttpPost("start")]
     public async Task<IActionResult> StartPomodoro([FromBody] PomodoroPreferencesDto request)

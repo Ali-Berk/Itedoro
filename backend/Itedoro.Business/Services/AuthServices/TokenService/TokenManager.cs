@@ -12,12 +12,33 @@ using Itedoro.Data;
 using Itedoro.Data.Entities.Users;
 using Itedoro.Business.Shared.Result;
 
-public class TokenManager(
-    IConfiguration config,
-    ItedoroDbContext context
-) : ITokenService
+public class TokenManager : ITokenService
 {
-    // getvalue'lar constructor içinde tanımlanacak.
+    private readonly ItedoroDbContext context;
+    private readonly IConfiguration config;
+    private readonly SymmetricSecurityKey _key;
+    private readonly string _issuer;
+    private readonly string _audience;
+    private readonly int _accessTokenExpiresMinutes;
+    private readonly int _refreshTokenExpiresDays;
+
+    public TokenManager(ItedoroDbContext _context, IConfiguration _config)
+    {
+        context = _context;
+        config = _config;
+        
+        var tokenKey = config.GetValue<string>("AppSettings:Token") 
+                       ?? throw new Exception("Token key not found in settings");
+            
+        _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(tokenKey));
+        _issuer = config.GetValue<string>("AppSettings:Issuer") ?? "";
+        _audience = config.GetValue<string>("AppSettings:Audience") ?? "";
+        _accessTokenExpiresMinutes = config.GetValue<int>("AppSettings:ExpireMinutes");
+        _refreshTokenExpiresDays = config.GetValue<int>("AppSettings:ExpireDays");
+    }
+
+    //DONE: getvalue'lar constructor içinde tanımlanacak.
+    //WARN: Refresh Token ile sınırsız AccessToken üretiliyor.
     public string GenerateAccessToken(User user)
     {
         var claims = new List<Claim>
@@ -27,17 +48,13 @@ public class TokenManager(
             new Claim(ClaimTypes.Role, user.Role?.Name ?? "User"),
         };
 
-        var secretKey = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(config.GetValue<string>("AppSettings:Token")!));
-        
-        var credentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha512);
-        var expiresMinutes = config.GetValue<int>("AppSettings:ExpireMinutes");
+        var credentials = new SigningCredentials(_key, SecurityAlgorithms.HmacSha512);
 
         var jwtToken = new JwtSecurityToken(
-            issuer: config.GetValue<string>("AppSettings:Issuer"),
-            audience: config.GetValue<string>("AppSettings:Audience"),
+            issuer: _issuer,
+            audience: _audience,
             claims: claims,
-            expires: DateTime.UtcNow.AddMinutes(expiresMinutes),
+            expires: DateTime.UtcNow.AddMinutes(_accessTokenExpiresMinutes),
             signingCredentials: credentials
         );
         return new JwtSecurityTokenHandler().WriteToken(jwtToken);

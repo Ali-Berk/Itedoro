@@ -28,7 +28,6 @@ public class RegisterManager(
         user.UpdatePasswordHash(hashedPassword);
 
         dbContext.Users.Add(user);
-        await dbContext.SaveChangesAsync();
 
         var (refreshToken, rawRefreshToken) = tokenService.CreateRefreshToken(user.Id);
         var accessToken = tokenService.GenerateAccessToken(user);
