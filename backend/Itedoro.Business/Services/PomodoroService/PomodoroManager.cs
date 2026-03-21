@@ -12,11 +12,13 @@ public class PomodoroManager(
     PomodoroPlanGenerator planGenerator
 ) : IPomodoroService
 {
-//DONE: Aktif olan 1 adet pomodoro olması gerekli. Kontrolünü sağla.
 //TODO: Controller için validation ayarla.
-//DONE: Pause ve Resume ekle.(Not: Bitiş süresini ilerletmen gerekecek.)
 //TODO: Childların çalışma sırası için bir order ekle.
+//DONE: Session iptali.
+//TODO: Eski sessionları listeleme.
+//TODO: Molaları erkenden atlamak.
 
+    //Bu kısım geçici ileride repository olarak tekrar eklenilecek.
     private async Task<ParentSession?> FindActiveSessionAsync(Guid userId)
     {
         return await
@@ -40,12 +42,13 @@ public class PomodoroManager(
             
         if(activeSession != null)
         {
-            activeSession.Status = PomodoroStatus.Paused;
+            activeSession.Status = PomodoroStatus.Canceled;
+            activeSession.EndTime = DateTime.UtcNow;
             await dbContext.SaveChangesAsync();
         }
         var childPlans = planGenerator.Generate(dto);
         var newSession = new ParentSession(out Guid parentId, userId, dto.TotalMinutes);
-        var parent = await dbContext.ParentSessions.AddAsync(newSession);
+        await dbContext.ParentSessions.AddAsync(newSession);
         foreach (var plan in childPlans)
         {
             var child = new ChildSession(parentId, plan.Duration, plan.Type);
@@ -55,7 +58,6 @@ public class PomodoroManager(
         return Result<ParentSession>.Success(newSession);
     }
 
-    //WARN: Complate olmayan childlar da pause edilmeli.
     public async Task<Result> PauseSessionAsync(Guid userId, Guid parentId)
     {
         var activeSession = await FindActiveSessionAsync(userId);
@@ -82,8 +84,6 @@ public class PomodoroManager(
     public async Task<Result> ResumeSessionAsync(Guid userId, Guid parentId)
     {
         var pausedSession = await FindPausedSessionAsync(userId);
-        var childs = await FindChildSessionsAsync(parentId);
-
         if (pausedSession == null)
         {
             return Result.Failure("There is no paused session running.");
@@ -92,9 +92,10 @@ public class PomodoroManager(
         pausedSession.Status = PomodoroStatus.Running;
         pausedSession.PauseStop = DateTime.UtcNow;
         TimeSpan? diff = pausedSession.PauseStop - pausedSession.PauseStart;
-        double diffMinutes = diff.HasValue ? diff.Value.TotalMinutes : 0;
+        double diffMinutes = diff?.TotalMinutes ?? 0;
         pausedSession.EndTime = pausedSession.EndTime.AddMinutes(diffMinutes);
         
+        var childs = await FindChildSessionsAsync(parentId);
         foreach (var child in childs)
         {
             if (child.Status == PomodoroStatus.Paused)
@@ -105,6 +106,36 @@ public class PomodoroManager(
 
         await dbContext.SaveChangesAsync();
         return Result.Success();
+        
+
     }
-    
+
+    public async Task<Result> StopSessionAsync(Guid userId, Guid parentId)
+    {
+        var parent = await dbContext.ParentSessions.FirstOrDefaultAsync(s => s.Id == parentId && s.UserId == userId);
+        if (parent == null)
+        {
+            return Result.Failure("Session not found.");
+        }
+
+        if (parent.Status != PomodoroStatus.Running && parent.Status != PomodoroStatus.Paused)
+        {
+            return Result.Failure("This session is not active and cannot be stopped.");
+        }
+
+        parent.Status = PomodoroStatus.Canceled;
+        parent.EndTime = DateTime.UtcNow;
+        
+        var childs = await FindChildSessionsAsync(parentId);
+        foreach (var child in childs)
+        {
+            if (child.Status != PomodoroStatus.Complated)
+            {
+                child.Status = PomodoroStatus.Canceled;
+            }
+        }
+
+        await dbContext.SaveChangesAsync();
+        return Result.Success();
+    }
 }

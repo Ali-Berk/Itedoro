@@ -40,6 +40,10 @@ public class PomodoroController(
         var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
         Guid.TryParse(userIdString, out Guid userId);
         var result = await pomodoroService.PauseSessionAsync(userId, parentPomodoroSessionId);
+        if (result.IsFailure)
+        {
+            return BadRequest(result.Errors);
+        }
         return Ok();
     }
 
@@ -49,6 +53,24 @@ public class PomodoroController(
         var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
         Guid.TryParse(userIdString, out Guid userId);
         var result = await pomodoroService.ResumeSessionAsync(userId, parentPomodoroSessionId);
+        if (result.IsFailure)
+        {
+            return BadRequest(result.Errors);
+        }
+        return Ok();
+    }
+
+    [HttpPost("stop/{parentPomodoroSessionId}")]
+    public async Task<IActionResult> Stop(Guid parentPomodoroSessionId)
+    {
+        var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        Guid.TryParse(userIdString, out Guid userId);
+        var result = await pomodoroService.StopSessionAsync(userId, parentPomodoroSessionId);
+        if (result.IsFailure)
+        {
+            return BadRequest(result.Errors);
+        }
+
         return Ok();
     }
 }
