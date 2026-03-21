@@ -22,10 +22,9 @@ public class ParentSession
 
     protected ParentSession() {}
 
-    public ParentSession(out Guid Id ,Guid userId, int totalPlannedMinutes, string? note = "")
+    public ParentSession(Guid userId, int totalPlannedMinutes, string? note = "")
     {
         Id = Guid.NewGuid();
-        this.Id = Id;
         UserId = userId;
         TotalPlannedMinutes = totalPlannedMinutes;
         Note = note;

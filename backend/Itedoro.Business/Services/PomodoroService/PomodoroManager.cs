@@ -14,15 +14,14 @@ public class PomodoroManager(
 {
 //TODO: Controller için validation ayarla.
 //TODO: Childların çalışma sırası için bir order ekle.
-//DONE: Session iptali.
-//TODO: Eski sessionları listeleme.
+//DONE: Eski sessionları listeleme.
 //TODO: Molaları erkenden atlamak.
 
     //Bu kısım geçici ileride repository olarak tekrar eklenilecek.
     private async Task<ParentSession?> FindActiveSessionAsync(Guid userId)
     {
         return await
-            dbContext.ParentSessions.FirstOrDefaultAsync(s => s.UserId == userId && s.Status == PomodoroStatus.Running);
+            dbContext.ParentSessions.Include(p => p.ChildSessions).FirstOrDefaultAsync(s => s.UserId == userId && s.Status == PomodoroStatus.Running);
     }
 
     private async Task<List<ChildSession>> FindChildSessionsAsync(Guid parentId)
@@ -34,6 +33,12 @@ public class PomodoroManager(
     {
         return await
             dbContext.ParentSessions.FirstOrDefaultAsync(s => s.UserId == userId && s.Status == PomodoroStatus.Paused);
+    }
+
+    private async Task<List<ParentSession>> GetAllParentsAsync(Guid userId)
+    {
+        return await 
+            dbContext.ParentSessions.Where(s => userId == s.UserId).ToListAsync();
     }
         
     public async Task<Result<ParentSession>> CreateSessionAsync(Guid userId, PomodoroPreferencesDto dto)
@@ -47,11 +52,12 @@ public class PomodoroManager(
             await dbContext.SaveChangesAsync();
         }
         var childPlans = planGenerator.Generate(dto);
-        var newSession = new ParentSession(out Guid parentId, userId, dto.TotalMinutes);
+        var newSession = new ParentSession(userId, dto.TotalMinutes, dto.Note);
+        
         await dbContext.ParentSessions.AddAsync(newSession);
         foreach (var plan in childPlans)
         {
-            var child = new ChildSession(parentId, plan.Duration, plan.Type);
+            var child = new ChildSession(newSession.Id, plan.Duration, plan.Type);
             dbContext.ChildSessions.Add(child);
         }
         await dbContext.SaveChangesAsync();
@@ -137,5 +143,20 @@ public class PomodoroManager(
 
         await dbContext.SaveChangesAsync();
         return Result.Success();
+    }
+
+    public async Task<Result<List<ParentSession>>> GetAllSessionsAsync(Guid userId)
+    {
+        var sessions = await GetAllParentsAsync(userId);
+        if (sessions.Count == 0)
+        {
+            return Result<List<ParentSession>>.Success(sessions);
+        }
+        foreach (var session in sessions)
+        {
+            await FindChildSessionsAsync(session.Id);
+        }
+        
+        return Result<List<ParentSession>>.Success(sessions);
     }
 }

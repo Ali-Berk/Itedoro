@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace Itedoro.Data.Entities.PomodoroSessions;
 
 public class ChildSession
@@ -10,6 +12,7 @@ public class ChildSession
 
     public int PlannedDurationMinutes {get; init;}
 
+    [JsonIgnore]
     public virtual ParentSession ParentSession {get; set;} = null!;
 
     protected ChildSession(){}

@@ -13,7 +13,6 @@ public class PomodoroController(
     IPomodoroService pomodoroService
 ) : ControllerBase
 {
-    //TODO: Geçmiş pomodoroların listelenmesi için bir endpoint oluştur.
 
     [HttpPost("start")]
     public async Task<IActionResult> StartPomodoro([FromBody] PomodoroPreferencesDto request)
@@ -72,5 +71,19 @@ public class PomodoroController(
         }
 
         return Ok();
+    }
+    
+    [HttpGet("history")]
+    public async Task<IActionResult> GetHistory()
+    {
+        var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        Guid.TryParse(userIdString, out Guid userId);
+    
+        var result = await pomodoroService.GetAllSessionsAsync(userId);
+        if (result.IsFailure)
+        {
+            return NotFound(result.Errors);
+        }
+        return Ok(result.Value);
     }
 }

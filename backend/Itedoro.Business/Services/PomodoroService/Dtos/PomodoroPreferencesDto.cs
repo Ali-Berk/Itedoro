@@ -6,5 +6,6 @@ public record PomodoroPreferencesDto(
     int WorkMinutes = 25,
     int ShortBreakMinutes = 5,
     int LongBreakMinutes = 30,
-    int LongBreakInterval = 2
+    int LongBreakInterval = 2,
+    string Note = ""
 );

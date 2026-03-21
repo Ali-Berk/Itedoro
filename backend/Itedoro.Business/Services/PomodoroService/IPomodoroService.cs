@@ -13,4 +13,6 @@ public interface IPomodoroService
     Task<Result> PauseSessionAsync(Guid userId, Guid parentId);
     Task<Result> ResumeSessionAsync(Guid userId, Guid parentId);
     Task<Result> StopSessionAsync(Guid userId, Guid parentId);
+
+    Task<Result<List<ParentSession>>> GetAllSessionsAsync(Guid userId);
 }
