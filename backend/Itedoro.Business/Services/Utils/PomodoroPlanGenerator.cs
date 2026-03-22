@@ -3,16 +3,17 @@ using Itedoro.Business.Services.PomodoroService.Dtos;
 namespace Itedoro.Business.Services.Utils;
 public class PomodoroPlanGenerator
 {
-    public List<(int Duration, PomodoroType Type)> Generate(PomodoroPreferencesDto prefs)
+    public List<(int Duration, PomodoroType Type, int Order)> Generate(PomodoroPreferencesDto prefs)
     {
-        var planList = new List<(int Duration, PomodoroType Type)>();
+        var planList = new List<(int Duration, PomodoroType Type, int Order)>();
         int remainingMinutes = prefs.TotalMinutes;
         int workSessionCount = 0;
-
+        int order = 0;
         while (remainingMinutes > 0)
         {
+            order++;
             int currentWork = Math.Min(remainingMinutes, prefs.WorkMinutes);
-            planList.Add((currentWork, PomodoroType.Work));
+            planList.Add((currentWork, PomodoroType.Work, order));
             remainingMinutes -= currentWork;
             workSessionCount++;
 
@@ -23,7 +24,8 @@ public class PomodoroPlanGenerator
             PomodoroType breakType = isLongBreak ? PomodoroType.LongBreak : PomodoroType.ShortBreak;
 
             int currentBreak = Math.Min(remainingMinutes, breakLimit);
-            planList.Add((currentBreak, breakType));
+            order++;
+            planList.Add((currentBreak, breakType, order));
             remainingMinutes -= currentBreak;
         }
 

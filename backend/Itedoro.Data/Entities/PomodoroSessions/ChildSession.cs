@@ -9,7 +9,8 @@ public class ChildSession
 
     public PomodoroType Type {get; init;}
     public PomodoroStatus Status {get; set;}
-
+    
+    public int Order { get; init; }
     public int PlannedDurationMinutes {get; init;}
 
     [JsonIgnore]
@@ -17,12 +18,13 @@ public class ChildSession
 
     protected ChildSession(){}
 
-    public ChildSession(Guid parentSessionId, int plannedDurationMinutes, PomodoroType type)
+    public ChildSession(Guid parentSessionId, int plannedDurationMinutes, PomodoroType type, int order)
     {
         Id = Guid.NewGuid();
         ParentSessionId = parentSessionId;
-        PlannedDurationMinutes = plannedDurationMinutes;
+        Order = order;
         Type = type;
         Status = PomodoroStatus.Running;
+        PlannedDurationMinutes = plannedDurationMinutes;
     }
 }

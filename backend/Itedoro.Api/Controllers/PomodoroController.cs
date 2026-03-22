@@ -13,7 +13,8 @@ public class PomodoroController(
     IPomodoroService pomodoroService
 ) : ControllerBase
 {
-
+    //WARN: frontend her child bitiminde backende istek atıp güncellemelidir.
+    //TODO: Child idleri de gönderilmeli.
     [HttpPost("start")]
     public async Task<IActionResult> StartPomodoro([FromBody] PomodoroPreferencesDto request)
     {
@@ -85,5 +86,16 @@ public class PomodoroController(
             return NotFound(result.Errors);
         }
         return Ok(result.Value);
+    }
+
+    [HttpPost("{parentId}/skip-break/{childId}")]
+    public async Task<IActionResult> SkipBreak(Guid parentId, Guid childId )
+    {
+        var result = await pomodoroService.SkipBreakAsync(parentId, childId);
+        if (result.IsFailure)
+        {
+            return NotFound(result.Errors);
+        }
+        return NoContent();
     }
 }

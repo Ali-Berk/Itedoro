@@ -13,9 +13,8 @@ public class PomodoroManager(
 ) : IPomodoroService
 {
 //TODO: Controller için validation ayarla.
-//TODO: Childların çalışma sırası için bir order ekle.
-//DONE: Eski sessionları listeleme.
-//TODO: Molaları erkenden atlamak.
+//DONE: Childların çalışma sırası için bir order ekle.
+//DONE: Molaları erkenden atlamak.
 
     //Bu kısım geçici ileride repository olarak tekrar eklenilecek.
     private async Task<ParentSession?> FindActiveSessionAsync(Guid userId)
@@ -26,7 +25,7 @@ public class PomodoroManager(
 
     private async Task<List<ChildSession>> FindChildSessionsAsync(Guid parentId)
     {
-        return await dbContext.ChildSessions.Where(c => c.ParentSessionId == parentId).ToListAsync();
+        return await dbContext.ChildSessions.Where(c => c.ParentSessionId == parentId).OrderBy(o => o.Order).ToListAsync();
     }
 
     private async Task<ParentSession?> FindPausedSessionAsync(Guid userId)
@@ -39,6 +38,12 @@ public class PomodoroManager(
     {
         return await 
             dbContext.ParentSessions.Where(s => userId == s.UserId).ToListAsync();
+    }
+
+    private async Task<ParentSession?> FindParentSessionByParentIdAsync(Guid parentId)
+    {
+        return await 
+            dbContext.ParentSessions.FirstOrDefaultAsync(p => p.Id == parentId);
     }
         
     public async Task<Result<ParentSession>> CreateSessionAsync(Guid userId, PomodoroPreferencesDto dto)
@@ -57,7 +62,7 @@ public class PomodoroManager(
         await dbContext.ParentSessions.AddAsync(newSession);
         foreach (var plan in childPlans)
         {
-            var child = new ChildSession(newSession.Id, plan.Duration, plan.Type);
+            var child = new ChildSession(newSession.Id, plan.Duration, plan.Type, plan.Order);
             dbContext.ChildSessions.Add(child);
         }
         await dbContext.SaveChangesAsync();
@@ -158,5 +163,25 @@ public class PomodoroManager(
         }
         
         return Result<List<ParentSession>>.Success(sessions);
+    }
+
+    public async Task<Result> SkipBreakAsync(Guid parentId, Guid childId)
+    {
+        var parent = await FindParentSessionByParentIdAsync(parentId);
+        if (parent == null)
+        {
+            return Result.Failure("Parent session not found.");
+        }
+
+        var child = await dbContext.ChildSessions.Where(c => c.Type != PomodoroType.Work).FirstOrDefaultAsync(c => c.Id == childId);
+        if (child == null)
+        {
+            return Result.Failure("Break session not found.");
+        }
+
+        child.Status = PomodoroStatus.Complated;
+        parent.EndTime = parent.EndTime.AddMinutes(-child.PlannedDurationMinutes);
+        await dbContext.SaveChangesAsync();
+        return Result.Success();
     }
 }
