@@ -37,7 +37,6 @@ public class TokenManager : ITokenService
         _refreshTokenExpiresDays = config.GetValue<int>("AppSettings:ExpireDays");
     }
 
-    //DONE: getvalue'lar constructor içinde tanımlanacak.
     //WARN: Refresh Token ile sınırsız AccessToken üretiliyor.
     public string GenerateAccessToken(User user)
     {

@@ -12,9 +12,7 @@ public class PomodoroManager(
     PomodoroPlanGenerator planGenerator
 ) : IPomodoroService
 {
-//TODO: Controller için validation ayarla.
-//DONE: Childların çalışma sırası için bir order ekle.
-//DONE: Molaları erkenden atlamak.
+//DONE: Controller için validation ayarla.
 
     //Bu kısım geçici ileride repository olarak tekrar eklenilecek.
     private async Task<ParentSession?> FindActiveSessionAsync(Guid userId)

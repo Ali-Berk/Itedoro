@@ -15,6 +15,7 @@ public class PomodoroController(
 {
     //WARN: frontend her child bitiminde backende istek atıp güncellemelidir.
     //TODO: Child idleri de gönderilmeli.
+
     [HttpPost("start")]
     public async Task<IActionResult> StartPomodoro([FromBody] PomodoroPreferencesDto request)
     {
@@ -33,7 +34,6 @@ public class PomodoroController(
             errors = result.Errors
         });
     }
-    //DONE: Pause ve resume için isteği urlden al
     [HttpPost("pause/{parentPomodoroSessionId}")]
     public async Task<IActionResult> Pause(Guid parentPomodoroSessionId)
     {
