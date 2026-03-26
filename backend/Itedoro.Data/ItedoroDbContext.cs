@@ -5,6 +5,7 @@ using Itedoro.Data.Entities.PomodoroSessions;
 
 using System.Reflection.Metadata;
 using System.Data.Common;
+using Itedoro.Data.Entities.WeeklyPlan;
 
 
 namespace Itedoro.Data;
@@ -22,6 +23,7 @@ public class ItedoroDbContext : DbContext
     public DbSet<ParentSession> ParentSessions { get; set;}
     public DbSet<ChildSession> ChildSessions { get; set;}
 
+    public DbSet<PlanItem> PlanItems { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

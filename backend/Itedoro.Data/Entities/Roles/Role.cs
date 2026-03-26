@@ -5,17 +5,17 @@ namespace Itedoro.Data.Entities.Roles
     public class Role
     {
         public Guid Id { get; init; }
-        public string Name { get; set; } = null!;
+        public string Name { get; private set; }
 
-        public ICollection<User> Users { get; set; } = new List<User>();
+        public virtual ICollection<User> Users { get; set; } = new List<User>();
 
-        public Role(string name)
+        public Role(
+            string name,
+            Guid id = default)
         {
-            Id = Guid.NewGuid();
+            Id = id == Guid.Empty ? Guid.NewGuid() : id;
             Name = name;
         }
-
-        protected Role() { }
         public void UpdateName(string newName)
         {
             Name = newName;

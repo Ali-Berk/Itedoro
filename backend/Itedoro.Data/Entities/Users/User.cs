@@ -17,20 +17,31 @@ namespace Itedoro.Data.Entities.Users
 
         public Guid RoleId { get; private set; }
         
-        public Role Role { get; private set; } = null!;
+        public virtual Role Role { get; private set; } = null!;
 
-        protected User() { }
-        public User(string username, string email, string passwordHash, Guid? roleId = null)
+        public User(
+            string username,
+            string email,
+            string passwordHash,
+            Guid id = default,
+            Guid roleId = default,
+            DateTime createdAt = default,
+            DateTime? updatedAt = null,
+            string? name = null,
+            string? surname = null,
+            bool isDeleted = false
+        )
         {
-            Id = Guid.NewGuid();
+            Id = id == Guid.Empty ? Guid.NewGuid() : id;
+            RoleId = roleId == Guid.Empty ? Guid.Parse("F9E8D7C6-B5A4-4F3E-2D1C-0B9A8F7E6D5C") : roleId;
             Username = username;
             Email = email;
             PasswordHash = passwordHash;
-            
-            RoleId = roleId ?? Guid.Parse("F9E8D7C6-B5A4-4F3E-2D1C-0B9A8F7E6D5C");
-            
-            CreatedAt = DateTime.UtcNow;
-            IsDeleted = false;
+            Name = name;
+            Surname = surname;
+            CreatedAt = createdAt == default ? DateTime.UtcNow : createdAt;
+            UpdatedAt = updatedAt;
+            IsDeleted = isDeleted;
         }
 
         public void UpdateProfile(string name, string surname)
