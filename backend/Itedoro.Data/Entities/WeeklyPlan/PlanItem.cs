@@ -41,27 +41,18 @@ public class PlanItem
         UpdatedAt = updatedAt == default ? DateTime.UtcNow : updatedAt;
     }
 
-    public void UpdateTitle(string title)
+    public void UpdatePlan(
+        string? title,
+        DateTime? startDate,
+        DateTime? endDate,
+        string? note,
+        string? colorCode)
     {
-        Title = title;
-        UpdatedAt = DateTime.UtcNow;
-    }
-
-    public void UpdateColorCode(string colorCode)
-    {
-        ColorCode = colorCode;
-        UpdatedAt = DateTime.UtcNow;
-    }
-    public void UpdateNote(string note)
-    {
-        Note = note;
-        UpdatedAt = DateTime.UtcNow;
-    }
-
-    public void UpdateDateRange(DateTime startDate, DateTime endDate)
-    {
-        StartDate = startDate;
-        EndDate = endDate;
+        Title = title ?? Title;
+        ColorCode = colorCode ?? ColorCode;
+        Note = note ?? Note;
+        StartDate = startDate ?? StartDate;
+        EndDate = endDate ?? EndDate;
         UpdatedAt = DateTime.UtcNow;
     }
 
