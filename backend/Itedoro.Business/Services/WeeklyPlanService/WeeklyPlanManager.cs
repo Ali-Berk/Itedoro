@@ -60,12 +60,27 @@ public class WeeklyPlanManager(
         var selectedPlans = await dbContext.PlanItems
             .AsNoTracking()
             .Where(i => i.UserId == userId)
-            .Where(d => d.StartDate < endDate && d.EndDate < startDate)
+            .Where(d => d.StartDate < endDate && d.EndDate > startDate)
             .ToListAsync();
         if (!selectedPlans.Any())
         {
             return Result<List<PlanItem>>.Failure("No plans found");
         }
         return Result<List<PlanItem>>.Success(selectedPlans);
+    }
+
+    public async Task<Result> DeletePlanItem(Guid userId, Guid planItemId)
+    {
+        var selectedPlan = await dbContext.PlanItems
+            .Where(i => i.Id == planItemId && i.UserId == userId)
+            .FirstOrDefaultAsync();
+        if (selectedPlan == null)
+        {
+            return Result.Failure("No plans found");
+        }
+
+        dbContext.PlanItems.Remove(selectedPlan);
+        await dbContext.SaveChangesAsync();
+        return Result.Success();
     }
 }

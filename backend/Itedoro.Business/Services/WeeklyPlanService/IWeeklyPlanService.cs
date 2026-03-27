@@ -10,4 +10,5 @@ public interface IWeeklyPlanService
     Task<Result> UpdatePlan(Guid planItemId, UpdatePlanRequestDto request);
     Task<Result<List<PlanItem>>> GetAllPlans(Guid userId);
     Task<Result<List<PlanItem>>> GetSelectedPlans(Guid userId, DateTime startDate, DateTime endDate);
+    Task<Result> DeletePlanItem(Guid userId, Guid planItemId);
 }

@@ -6,8 +6,7 @@ using Itedoro.Business.Services.TokenService;
 using Itedoro.Business.Services.PomodoroService;
 using Itedoro.Business.Daemons.TokenCleanupDaemon;
 using Itedoro.Business.Services.Utils;
-
-
+using Itedoro.Business.Services.WeeklyPlanService;
 
 
 namespace Itedoro.Business;
@@ -25,6 +24,7 @@ public static class BusinessDependencyInjection
 
         services.AddScoped<ITokenService, TokenManager>();
         services.AddScoped<IPomodoroService, PomodoroManager>();
+        services.AddScoped<IWeeklyPlanService, WeeklyPlanManager>();
 
         //Daemons
         services.AddHostedService<TokenCleanupDaemon>();
