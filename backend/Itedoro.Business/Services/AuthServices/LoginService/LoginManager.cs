@@ -1,33 +1,34 @@
-using AutoMapper;
-using Itedoro.Business.Services.LoginService.Dtos;
-using Itedoro.Business.Services.UserServices;
-using Itedoro.Business.Services.TokenService;
-using Itedoro.Data.Entities.Users;
-﻿using Microsoft.AspNetCore.Identity;
-using Itedoro.Business.Shared.Result;
 using Itedoro.Data;
+using Itedoro.Data.Entities.Users;
+using Microsoft.AspNetCore.Identity;
+using Itedoro.Business.Shared.Result;
+using Microsoft.Extensions.Configuration;
+using Itedoro.Business.Services.AuthServices.TokenService;
+using Itedoro.Business.Services.AuthServices.Dtos.Responses;
+using Itedoro.Business.Services.AuthServices.Dtos.Requests;
 
-namespace Itedoro.Business.Services.LoginService;
+namespace Itedoro.Business.Services.AuthServices.LoginService;
 public class LoginManager(
     IPasswordHasher<User> passwordHasher,
     ITokenService tokenManager,
     ItedoroDbContext dbContext,
-    IEnumerable<ILoginStrategy> strategies
+    IEnumerable<ILoginStrategy> strategies,
+    IConfiguration config
 ) : ILoginService
 {
-    public async Task<Result<AuthTokens>> LoginAsync(LoginRequestDto request)
+    public async Task<Result<AuthResponse>> LoginAsync(LoginRequest request)
     {        
         var strategy = strategies.FirstOrDefault(s => s.CanHandle(request));
-        if (strategy == null) return Result<AuthTokens>.Failure("Invalid login handle.");
+        if (strategy == null) return Result<AuthResponse>.Failure("Invalid login handle.");
 
         var user = await strategy.LoginAsync(request);
-        if (user == null) return Result<AuthTokens>.Failure("User not found.");
+        if (user == null) return Result<AuthResponse>.Failure("User not found.");
 
         var verificationResult = passwordHasher.VerifyHashedPassword(user, user.PasswordHash, request.Password);
 
         if (verificationResult == PasswordVerificationResult.Failed)
         {
-            return Result<AuthTokens>.Failure("Wrong password.");
+            return Result<AuthResponse>.Failure("Wrong password.");
         }
 
         if (verificationResult == PasswordVerificationResult.SuccessRehashNeeded)
@@ -38,15 +39,20 @@ public class LoginManager(
         }
 
         var (refreshTokenEntity, rawRefreshToken) = tokenManager.CreateRefreshToken(user.Id);
-        var accessToken = tokenManager.GenerateAccessToken(user);
-
+        var accessToken = tokenManager.GenerateAccessToken(user); 
+        
+        //Direkt alınabilir.
+        var expireMinutes = config.GetValue<int>("AppSettings:ExpireMinutes");
+        var expiresAt = DateTime.UtcNow.AddMinutes(expireMinutes);
+        
         dbContext.RefreshTokens.Add(refreshTokenEntity);
         await dbContext.SaveChangesAsync();
 
-        return Result<AuthTokens>.Success(new AuthTokens
-        {
-            AccessToken = accessToken,
-            RefreshToken = rawRefreshToken
-        });
+        return Result<AuthResponse>.Success(new AuthResponse(
+            AccessToken: accessToken,
+            RefreshToken: rawRefreshToken,
+            ExpiresAt: expiresAt,
+            UserId: user.Id,
+            UserName: user.Username));
     }
 }

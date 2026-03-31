@@ -1,11 +1,10 @@
-using Microsoft.AspNetCore.Identity;
-using Itedoro.Business.Services.RegisterService.Dtos;
 using Itedoro.Business.Shared.Result;
+using Itedoro.Business.Services.AuthServices.Dtos.Requests;
 
-namespace Itedoro.Business.Services.RegisterService
+namespace Itedoro.Business.Services.AuthServices.RegisterService
 {
     public interface IRegisterService
     {
-        Task<Result<AuthTokens>> RegisterAsync(RegisterRequestDto request);
+        Task<Result> RegisterAsync(RegisterRequest request);
     }
 }

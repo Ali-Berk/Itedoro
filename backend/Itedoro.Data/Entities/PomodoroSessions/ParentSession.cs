@@ -31,6 +31,5 @@ public class ParentSession
         Status = PomodoroStatus.Running;
         StartTime = DateTime.UtcNow;
         EndTime = StartTime.AddMinutes(totalPlannedMinutes);
-
     }
 }

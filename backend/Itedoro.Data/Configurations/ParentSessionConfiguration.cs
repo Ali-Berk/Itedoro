@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Itedoro.Data.Entities.PomodoroSessions;
-using Itedoro.Data.Entities.Users;
 
 namespace Itedoro.Data.Configurations;
 

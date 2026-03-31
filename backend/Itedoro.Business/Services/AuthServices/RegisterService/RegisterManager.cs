@@ -1,12 +1,12 @@
 using Microsoft.AspNetCore.Identity;
 using Itedoro.Data.Entities.Users;
 using Itedoro.Data;
-using Itedoro.Business.Services.RegisterService.Dtos;
 using Microsoft.EntityFrameworkCore;
 using Itedoro.Business.Shared.Result;
-using Itedoro.Business.Services.TokenService;
+using Itedoro.Business.Services.AuthServices.TokenService;
+using Itedoro.Business.Services.AuthServices.Dtos.Requests;
 
-namespace Itedoro.Business.Services.RegisterService;
+namespace Itedoro.Business.Services.AuthServices.RegisterService;
 public class RegisterManager(
     ItedoroDbContext dbContext,
     IPasswordHasher<User> passwordHasher,
@@ -14,12 +14,12 @@ public class RegisterManager(
 ) : IRegisterService
 {
 
-    public async Task<Result<AuthTokens>> RegisterAsync(RegisterRequestDto request)
+    public async Task<Result> RegisterAsync(RegisterRequest request)
     {        
         var isUserExist = await dbContext.Users.AnyAsync(u => u.Email == request.Email || u.Username == request.Username);
         if (isUserExist)
         {
-            return Result<AuthTokens>.Failure("User already exists.");
+            return Result.Failure("User already exists.");
         }
         
         var user = new User(request.Username, request.Email, "placeholder");
@@ -35,10 +35,6 @@ public class RegisterManager(
         dbContext.RefreshTokens.Add(refreshToken);
         await dbContext.SaveChangesAsync();
 
-        return Result<AuthTokens>.Success(new AuthTokens
-        {
-            AccessToken = accessToken,
-            RefreshToken = rawRefreshToken
-        });
+        return Result.Success();
     }
 }

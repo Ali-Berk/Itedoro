@@ -1,7 +1,7 @@
 using Itedoro.Data.Entities.Users;
 using Itedoro.Business.Shared.Result;
 
-namespace Itedoro.Business.Services.TokenService;
+namespace Itedoro.Business.Services.AuthServices.TokenService;
 public interface ITokenService
 {
     string GenerateAccessToken(User user);

@@ -1,16 +1,15 @@
-namespace Itedoro.Business.Services.TokenService;
-
+using System.Text;
+using Itedoro.Data;
+using System.Security.Claims;
+using Itedoro.Data.Entities.Users;
+using System.Security.Cryptography;
 using Microsoft.EntityFrameworkCore;
-using Itedoro.Business.Services.TokenService.Helpers;
-using Microsoft.Extensions.Configuration;
+using Itedoro.Business.Shared.Result;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-using System.Security.Cryptography;
-using Itedoro.Data;
-using Itedoro.Data.Entities.Users;
-using Itedoro.Business.Shared.Result;
+using Microsoft.Extensions.Configuration;
+using Itedoro.Business.Services.TokenService.Helpers;
+namespace Itedoro.Business.Services.AuthServices.TokenService;
 
 public class TokenManager : ITokenService
 {
@@ -37,7 +36,6 @@ public class TokenManager : ITokenService
         _refreshTokenExpiresDays = config.GetValue<int>("AppSettings:ExpireDays");
     }
 
-    //WARN: Refresh Token ile sınırsız AccessToken üretiliyor.
     public string GenerateAccessToken(User user)
     {
         var claims = new List<Claim>
@@ -61,8 +59,6 @@ public class TokenManager : ITokenService
 
     public (RefreshToken Entity, string rawToken) CreateRefreshToken(Guid userId)
     {
-        var expireDays = config.GetValue<int>("AppSettings:ExpireDays");
-        
         string rawToken = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32));
         
         return
@@ -70,7 +66,7 @@ public class TokenManager : ITokenService
             new RefreshToken(
                 Sha256Hasher.ComputeHash(rawToken),
                 userId,
-                DateTime.UtcNow.AddDays(expireDays)),
+                DateTime.UtcNow.AddDays(_refreshTokenExpiresDays)),
                 rawToken);
     }
 
@@ -80,13 +76,14 @@ public class TokenManager : ITokenService
         var exist = await context.RefreshTokens
             .Include(t => t.User).Include(t => t.User.Role)
             .FirstOrDefaultAsync(t => t.Token == hashedToken);
-
         if (exist == null || exist.IsExpired)
         {
-            return Result<string>.Failure(errors: new[] { "Invalid Refresh Token." });
+            return Result<string>.Failure("Invalid Refresh Token.");
         }
+        exist.Revoke();
         
         var accessToken = GenerateAccessToken(exist.User);
+        await context.SaveChangesAsync();
         return Result<string>.Success(accessToken);
     }
 }

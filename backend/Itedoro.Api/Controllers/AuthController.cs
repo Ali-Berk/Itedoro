@@ -1,15 +1,14 @@
-using Itedoro.Business.Services.RegisterService;
-using Itedoro.Business.Services.RegisterService.Dtos;
 using Microsoft.AspNetCore.Mvc;
-using Itedoro.Business.Services.LoginService.Dtos;
-using Itedoro.Business.Services.LoginService;
-using Itedoro.Business.Services.TokenService;
-using Itedoro.Business.Shared.Result;
+using Itedoro.Business.Services.AuthServices.TokenService;
+using Itedoro.Business.Services.AuthServices.LoginService;
+using Itedoro.Business.Services.AuthServices.Dtos.Requests;
+using Itedoro.Business.Services.AuthServices.Dtos.Responses;
+using Itedoro.Business.Services.AuthServices.RegisterService;
 
 namespace Itedoro.Api.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("auth")]
 public class AuthController(
     ITokenService tokenService,
     ILoginService loginService,
@@ -17,37 +16,36 @@ public class AuthController(
 ) : ControllerBase
 {
     [HttpPost("register")]
-    public async Task<IActionResult> Register([FromBody] RegisterRequestDto request)
+    public async Task<IActionResult> Register([FromBody] RegisterRequest request)
     {
         var result = await registerService.RegisterAsync(request);
         if (result.IsFailure)
         {
             return BadRequest(result.Errors);
         }
-        return Ok(result);
+        return Created();
     }
     
     [HttpPost("login")]
-    public async Task<ActionResult> Login([FromBody] LoginRequestDto request)
+    [ProducesResponseType(typeof(AuthResponse), StatusCodes.Status200OK)]
+    public async Task<ActionResult> Login([FromBody] LoginRequest request)
     {
         var result = await loginService.LoginAsync(request);
-        if(result?.IsSuccess == true)
+        if(result.IsSuccess)
         {
-            return Ok(result);
+            return Ok(result.Value);
         }
-
-        return BadRequest(result?.Errors);
+        return BadRequest(result.Errors);
     }
 
-    //TODO:Refresh için validation ekle.
     [HttpPost("refresh")]
     public async Task<IActionResult> Refresh([FromBody] string refreshToken)
     {
         var result = await tokenService.RefreshAsync(refreshToken);
         if (result.IsSuccess)
         {
-            return Ok(result);
+            return Ok(result.Value);
         }
-        return BadRequest(result?.Errors);
+        return BadRequest(result.Errors);
     }
 }
