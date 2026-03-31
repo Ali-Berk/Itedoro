@@ -1,17 +1,18 @@
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
+using Itedoro.Api;
+using System.Text;
 using Itedoro.Data;
 using Itedoro.Business;
 using Itedoro.Data.Entities.Users;
-using Itedoro.Business.Services.LoginService;
-
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Itedoro.Business.Services.AuthServices.LoginService;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
-
+builder.Services.AddApiServices();
 builder.Services.AddDbContext<ItedoroDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))); 
 
@@ -40,7 +41,8 @@ builder.Services.AddAuthentication(options =>
 
 //Swagger
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddOpenApi();
+
 // FluentValidation
 builder.Services.AddBusinessValidators();
 // AutoMapper
@@ -69,8 +71,21 @@ using(var scope = app.Services.CreateScope())
 //Swagger
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseDeveloperExceptionPage();
+    
+    app.MapOpenApi();
+
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/openapi/v1.json", "Itedoro.Api v1");
+        options.RoutePrefix = string.Empty;
+        options.EnablePersistAuthorization();
+        options.DefaultModelRendering(Swashbuckle.AspNetCore.SwaggerUI.ModelRendering.Model);
+    });
+}
+else
+{
+    app.UseExceptionHandler();
 }
 
 // app.UseHttpsRedirection(); 
