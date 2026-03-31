@@ -8,8 +8,8 @@ public class PomodoroPreferencesDtoValidator : AbstractValidator<PomodoroPrefere
     public PomodoroPreferencesDtoValidator()
     {
         RuleFor(p => p.TotalMinutes)
-            .GreaterThanOrEqualTo(5)
-            .WithMessage("Total session time must be at least 5 minutes.");
+            .GreaterThanOrEqualTo(30)
+            .WithMessage("Total session time must be at least 30 minutes.");
 
         RuleFor(p => p.WorkMinutes)
             .GreaterThan(0)
@@ -28,7 +28,7 @@ public class PomodoroPreferencesDtoValidator : AbstractValidator<PomodoroPrefere
         RuleFor(p => p.LongBreakInterval)
             .GreaterThan(0)
             .WithMessage("Long break interval must be at least 1.");
-
+        
         RuleFor(p => p.Note).MaximumLength(500).WithMessage("Note cannot be longer than 500 characters.");
     }
 }

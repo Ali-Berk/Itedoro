@@ -10,7 +10,7 @@ namespace Itedoro.Business.Services.WeeklyPlanService;
 public class WeeklyPlanManager(
     ItedoroDbContext dbContext): IWeeklyPlanService
 {
-    public async Task<Result<Guid>> CreatePlan(Guid userId, CreatePlanRequestDto newPlan)
+    public async Task<Result<Guid>> CreatePlan(Guid userId, CreatePlanRequest newPlan)
     {
         var newPlanItem = new PlanItem(
             userId,
@@ -25,7 +25,7 @@ public class WeeklyPlanManager(
         return Result<Guid>.Success(newPlanItem.Id);
     }
 
-    public async Task<Result> UpdatePlan(Guid planItemId, UpdatePlanRequestDto request)
+    public async Task<Result> UpdatePlan(Guid planItemId, UpdatePlanRequest request)
     {
         var planItem = await dbContext.PlanItems.FirstOrDefaultAsync(i => i.Id == planItemId);
         if (planItem == null)

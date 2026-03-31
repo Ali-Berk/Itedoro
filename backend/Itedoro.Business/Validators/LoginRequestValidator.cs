@@ -1,9 +1,9 @@
 using FluentValidation;
-using Itedoro.Business.Services.LoginService.Dtos;
+using Itedoro.Business.Services.AuthServices.Dtos.Requests;
 
 namespace Itedoro.Business.Validators;
 
-public class LoginRequestValidator : AbstractValidator<LoginRequestDto>
+public class LoginRequestValidator : AbstractValidator<LoginRequest>
 {
     public LoginRequestValidator()
     {

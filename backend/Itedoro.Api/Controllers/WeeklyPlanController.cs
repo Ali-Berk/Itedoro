@@ -1,22 +1,23 @@
+using Itedoro.Api.Extensions;
 using Microsoft.AspNetCore.Mvc;
-using Itedoro.Business.Services.WeeklyPlanService;
 using Microsoft.AspNetCore.Authorization;
-using System.Security.Claims;
+using Itedoro.Business.Services.WeeklyPlanService;
 using Itedoro.Business.Services.WeeklyPlanService.Dtos;
-
 namespace Itedoro.Api.Controllers;
+
 [Authorize]
 [ApiController]
-[Route("api/[controller]")]
+[Route("weekly-plan")]
+
 public class WeeklyPlanController(
 IWeeklyPlanService weeklyPlanManager
 ) : ControllerBase
 {
-    [HttpPost("createPlan")]
-    public async Task<IActionResult> CreateNewPlan([FromBody] CreatePlanRequestDto createPlanRequest)
+    [HttpPost]
+    public async Task<IActionResult> CreateNewPlan([FromBody] CreatePlanRequest createPlanRequest)
     {
-        var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        Guid.TryParse(userIdString, out Guid userId);
+        if (!User.TryGetUserId(out var userId))
+            return Unauthorized();
         var result = await weeklyPlanManager.CreatePlan(userId, createPlanRequest);
         if (result.IsFailure)
         {
@@ -25,11 +26,11 @@ IWeeklyPlanService weeklyPlanManager
         return Ok(result.Value);
     }
     
-    [HttpGet("selectedPlans/{startDate}/{endDate}")]
-    public async Task<IActionResult> GetSelectedPlans(DateTime startDate, DateTime endDate)
+    [HttpGet("selected-plans")]
+    public async Task<IActionResult> GetSelectedPlans([FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
     {
-        var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        Guid.TryParse(userIdString, out Guid userId);
+        if (!User.TryGetUserId(out var userId))
+            return Unauthorized();
         var result = await weeklyPlanManager.GetSelectedPlans(userId, startDate, endDate);
         if (result.IsFailure)
         {
@@ -38,24 +39,24 @@ IWeeklyPlanService weeklyPlanManager
         return Ok(result);
     }
     
-    [HttpGet("AllPlans")]
+    [HttpGet]
     public async Task<IActionResult> GetAllPlans()
     {
-        var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        Guid.TryParse(userIdString, out Guid userId);
+        if (!User.TryGetUserId(out var userId))
+            return Unauthorized();
         var result = await weeklyPlanManager.GetAllPlans(userId);
         if (result.IsFailure)
         {
             return NotFound(result.Errors);
         }
-        return Ok(result);
+        return Ok(result.Value);
     }
 
-    [HttpPatch("UpdatePlan/{planItemId}")]
-    public async Task<IActionResult> UpdatePlan([FromBody] UpdatePlanRequestDto updatePlanRequest, Guid planItemId)
+    [HttpPatch("update-plan/{planItemId}")]
+    public async Task<IActionResult> UpdatePlan([FromBody] UpdatePlanRequest updatePlanRequest, Guid planItemId)
     {
-        // var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        // Guid.TryParse(userIdString, out Guid userId);
+        if (!User.TryGetUserId(out var userId))
+            return Unauthorized();
         //TODO: UserId de yollanacak.
         var result = await weeklyPlanManager.UpdatePlan(planItemId, updatePlanRequest);
         if (result.IsFailure)
@@ -65,13 +66,12 @@ IWeeklyPlanService weeklyPlanManager
         return Ok(result);
     }
 
-    [HttpDelete("DeletePlanItem/{planItemId}")]
+    [HttpDelete("delete-plan/{planItemId}")]
     public async Task<IActionResult> DeletePlanItem(Guid planItemId)
     {
-        var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        Guid.TryParse(userIdString, out Guid userId);
-        //TODO: UserId de yollanacak.
-        var result = await weeklyPlanManager.DeletePlanItem(planItemId, userId);
+        if (!User.TryGetUserId(out var userId))
+            return Unauthorized();
+        var result = await weeklyPlanManager.DeletePlanItem(userId, planItemId);
         if (result.IsFailure)
         {
             return NotFound(result.Errors);
