@@ -2,8 +2,10 @@ using Itedoro.Api.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Itedoro.Business.Services.PomodoroService.Dtos;
+using Itedoro.Business.Services.PomodoroService.Dtos.Requests;
 using Itedoro.Business.Services.PomodoroService.Dtos.Responses;
 using Itedoro.Business.Services.PomodoroService.Interfaces;
+using Itedoro.Data.Shared;
 
 namespace Itedoro.Api.Controllers;
 
@@ -94,17 +96,12 @@ public class PomodoroController(
     }
     
     [HttpGet]
-    [ProducesResponseType(typeof(GetPomodoroHistoryResponse), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetHistory()
+    [ProducesResponseType(typeof(PagedResult<GetPomodoroHistoryResponse>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetHistory([FromQuery] GetPomodoroHistoryRequest request)
     {
         if (!User.TryGetUserId(out Guid userId))
             return Unauthorized();
-        
-        var result = await pomodoroService.GetAllSessionsAsync(userId);
-        if (result.IsFailure)
-        {
-            return NotFound(result.Errors);
-        }
+        var result = await pomodoroService.GetPagedSessionsAsync(userId, request);
         return Ok(result.Value);
     }
 

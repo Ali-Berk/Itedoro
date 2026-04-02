@@ -1,6 +1,7 @@
 using Itedoro.Data;
 using Itedoro.Business;
 using Itedoro.Data.Entities.Users;
+using Itedoro.Business.Validators;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Itedoro.Api.DependencyInjection;

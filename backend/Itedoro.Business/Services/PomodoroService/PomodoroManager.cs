@@ -5,9 +5,11 @@ using Itedoro.Business.Services.Utils;
 using Itedoro.Data.Entities.PomodoroSessions;
 using Itedoro.Data.Repositories.Pomodoro.Interfaces;
 using Itedoro.Business.Services.PomodoroService.Dtos;
+using Itedoro.Business.Services.PomodoroService.Dtos.Requests;
 using Itedoro.Business.Services.PomodoroService.Mappers;
 using Itedoro.Business.Services.PomodoroService.Interfaces;
 using Itedoro.Business.Services.PomodoroService.Dtos.Responses;
+using Itedoro.Data.Shared;
 
 namespace Itedoro.Business.Services.PomodoroService;
 
@@ -135,11 +137,17 @@ public class PomodoroManager(
             parent.EndTime));
     }
 
-    public async Task<Result<List<GetPomodoroHistoryResponse>>> GetAllSessionsAsync(Guid userId)
+    public async Task<Result<PagedResult<GetPomodoroHistoryResponse>>> GetPagedSessionsAsync(Guid userId, GetPomodoroHistoryRequest dto)
     {
-        var rawSessions = await repository.GetAllParentsAsync(userId);
-        var sessions = rawSessions.Select(s => s.CreateGetPomodoroHistoryResponseDto()).ToList();
-        return Result<List<GetPomodoroHistoryResponse>>.Success(sessions);
+        var rawSessions = await repository.GetPagedParentsAsync(userId, dto.Page, dto.PageSize );
+        var sessionDtos = rawSessions.Items.Select(s => s.CreateGetPomodoroHistoryResponseDto()).ToList();
+        
+        var pagedResponse = new PagedResult<GetPomodoroHistoryResponse>(
+            sessionDtos,
+            rawSessions.TotalCount,
+            rawSessions.CurrentPage,
+            rawSessions.PageSize);
+        return Result<PagedResult<GetPomodoroHistoryResponse>>.Success(pagedResponse);
     }
 
     public async Task<Result<SkipBreakResponse>> SkipBreakAsync(Guid parentId, Guid childId)

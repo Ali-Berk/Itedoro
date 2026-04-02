@@ -24,6 +24,7 @@ public static class BusinessDependencyInjection
 
         services.AddScoped<ITokenService, TokenManager>();
         services.AddScoped<IPomodoroService, PomodoroManager>();
+        services.AddScoped<IPomodoroAuthorizationService, PomodoroAuthorizationService>();
         services.AddScoped<IWeeklyPlanService, WeeklyPlanManager>();
         
         //Daemons

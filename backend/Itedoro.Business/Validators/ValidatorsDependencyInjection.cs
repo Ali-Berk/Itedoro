@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using FluentValidation;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
 
-namespace Itedoro.Business;
+namespace Itedoro.Business.Validators;
 
 public static class ValidatorsDependencyInjection
 {

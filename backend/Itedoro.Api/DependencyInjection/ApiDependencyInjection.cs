@@ -1,9 +1,8 @@
 using System.Text;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
-
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 namespace Itedoro.Api.DependencyInjection;
 
 public static class ApiDependencyInjection
@@ -75,7 +74,6 @@ public static class ApiDependencyInjection
                 return Task.CompletedTask;
             });
         });
-
         return services;
     }
 }
