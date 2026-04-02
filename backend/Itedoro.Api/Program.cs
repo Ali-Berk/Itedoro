@@ -6,6 +6,7 @@ using Itedoro.Data.Entities.Users;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Itedoro.Data.DependencyInjection;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Itedoro.Business.Services.AuthServices.LoginService;
 
@@ -13,8 +14,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddApiServices();
+
 builder.Services.AddDbContext<ItedoroDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))); 
+builder.Services.AddRepositories();
 
 builder.Services.AddBusinessServices();
 

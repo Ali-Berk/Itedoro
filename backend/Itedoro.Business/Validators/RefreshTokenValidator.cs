@@ -1,14 +1,17 @@
 using FluentValidation;
-using Itedoro.Data.Entities.Users;
+using Itedoro.Business.Services.AuthServices.Dtos.Requests;
 
 namespace Itedoro.Business.Validators;
 
-public class RefreshTokenValidator : AbstractValidator<RefreshToken>
+public class RefreshTokenValidator : AbstractValidator<RefreshTokenRequest>
 {
     public RefreshTokenValidator()
     {
-        RuleFor(t => t.ExpiryTime)
-            .GreaterThan(t => t.CreatedAt)
-            .WithMessage("Token has expired.");
+        RuleFor(t => t.RefreshToken)
+            .NotEmpty()
+            .WithMessage("Refresh token required.");
+        RuleFor(a => a.AccessToken)
+            .NotEmpty()
+            .WithMessage("Access token required.");
     }
 }

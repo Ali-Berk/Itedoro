@@ -7,7 +7,6 @@ using Itedoro.Business.Services.WeeklyPlanService;
 using Itedoro.Business.Services.AuthServices.LoginService;
 using Itedoro.Business.Services.AuthServices.TokenService;
 using Itedoro.Business.Services.PomodoroService.Interfaces;
-using Itedoro.Business.Services.PomodoroService.Repositories;
 using Itedoro.Business.Services.AuthServices.RegisterService;
 
 namespace Itedoro.Business;
@@ -26,9 +25,6 @@ public static class BusinessDependencyInjection
         services.AddScoped<ITokenService, TokenManager>();
         services.AddScoped<IPomodoroService, PomodoroManager>();
         services.AddScoped<IWeeklyPlanService, WeeklyPlanManager>();
-        
-        //Repositories
-        services.AddScoped<IPomodoroRepository, PomodoroRepository>();
         
         //Daemons
         services.AddHostedService<TokenCleanupDaemon>();

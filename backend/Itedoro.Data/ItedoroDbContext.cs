@@ -2,9 +2,6 @@ using Microsoft.EntityFrameworkCore;
 using Itedoro.Data.Entities.Users;
 using Itedoro.Data.Entities.Roles;
 using Itedoro.Data.Entities.PomodoroSessions;
-
-using System.Reflection.Metadata;
-using System.Data.Common;
 using Itedoro.Data.Entities.WeeklyPlan;
 
 

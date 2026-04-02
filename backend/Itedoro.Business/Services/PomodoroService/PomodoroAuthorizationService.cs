@@ -1,5 +1,5 @@
 using Itedoro.Business.Services.PomodoroService.Interfaces;
-
+using Itedoro.Data.Repositories.Pomodoro.Interfaces;
 namespace Itedoro.Business.Services.PomodoroService;
 
 public class PomodoroAuthorizationService(

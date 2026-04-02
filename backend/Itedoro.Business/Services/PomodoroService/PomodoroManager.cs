@@ -3,10 +3,11 @@ using Microsoft.EntityFrameworkCore;
 using Itedoro.Business.Shared.Result;
 using Itedoro.Business.Services.Utils;
 using Itedoro.Data.Entities.PomodoroSessions;
+using Itedoro.Data.Repositories.Pomodoro.Interfaces;
 using Itedoro.Business.Services.PomodoroService.Dtos;
 using Itedoro.Business.Services.PomodoroService.Mappers;
-using Itedoro.Business.Services.PomodoroService.Dtos.Responses;
 using Itedoro.Business.Services.PomodoroService.Interfaces;
+using Itedoro.Business.Services.PomodoroService.Dtos.Responses;
 
 namespace Itedoro.Business.Services.PomodoroService;
 
@@ -136,8 +137,9 @@ public class PomodoroManager(
 
     public async Task<Result<List<GetPomodoroHistoryResponse>>> GetAllSessionsAsync(Guid userId)
     {
-        var sessions = await repository.GetAllParentsAsync(userId);
-        return Result<List<GetPomodoroHistoryResponse>>.Success( sessions);
+        var rawSessions = await repository.GetAllParentsAsync(userId);
+        var sessions = rawSessions.Select(s => s.CreateGetPomodoroHistoryResponseDto()).ToList();
+        return Result<List<GetPomodoroHistoryResponse>>.Success(sessions);
     }
 
     public async Task<Result<SkipBreakResponse>> SkipBreakAsync(Guid parentId, Guid childId)
