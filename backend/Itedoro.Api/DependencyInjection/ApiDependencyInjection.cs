@@ -1,12 +1,41 @@
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 
-namespace Itedoro.Api;
+namespace Itedoro.Api.DependencyInjection;
 
 public static class ApiDependencyInjection
 {
-    public static IServiceCollection AddApiServices(this IServiceCollection services)
+    public static IServiceCollection AddApiServices(this IServiceCollection services, IConfiguration configuration)
     {
+        services.AddControllers();
+        services.AddEndpointsApiExplorer();
+
+        //JWT Servisleri
+        services.AddAuthentication(options =>
+        {
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        })
+        .AddJwtBearer(options =>
+        {
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                ValidIssuer = configuration["AppSettings:Issuer"],
+                ValidAudience = configuration["AppSettings:Audience"],
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
+                    configuration["AppSettings:Token"] ?? throw new InvalidOperationException("Token key not found in settings.")
+                ))
+            };
+        });
+
+        //Swagger / OpenApi
         services.AddOpenApi(options =>
         {
             options.AddOperationTransformer((document, context, cancellationToken) =>
@@ -46,6 +75,7 @@ public static class ApiDependencyInjection
                 return Task.CompletedTask;
             });
         });
+
         return services;
     }
 }
