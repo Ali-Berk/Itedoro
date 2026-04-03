@@ -1,4 +1,5 @@
 using Itedoro.Data;
+using Itedoro.Data.Shared;
 using Microsoft.EntityFrameworkCore;
 using Itedoro.Business.Shared.Result;
 using Itedoro.Business.Services.Utils;
@@ -9,7 +10,6 @@ using Itedoro.Business.Services.PomodoroService.Dtos.Requests;
 using Itedoro.Business.Services.PomodoroService.Mappers;
 using Itedoro.Business.Services.PomodoroService.Interfaces;
 using Itedoro.Business.Services.PomodoroService.Dtos.Responses;
-using Itedoro.Data.Shared;
 
 namespace Itedoro.Business.Services.PomodoroService;
 
@@ -51,10 +51,11 @@ public class PomodoroManager(
     public async Task<Result<PausePomodororoResponse>> PauseSessionAsync(Guid userId, Guid parentId)
     {
         var activeSession = await repository.FindActiveSessionAsync(userId);
-        if (activeSession == null)
+        if (activeSession == null || activeSession.Id != parentId)
         {
-            return Result<PausePomodororoResponse>.Failure("There is no pomodoro session running.");
+            return Result<PausePomodororoResponse>.Failure("There is no active session running.");
         }
+
         activeSession.Status = PomodoroStatus.Paused;
         activeSession.PauseStart = DateTime.UtcNow;
         foreach (var child in activeSession.ChildSessions)
@@ -75,7 +76,7 @@ public class PomodoroManager(
     public async Task<Result<ResumePomodoroResponse>> ResumeSessionAsync(Guid userId, Guid parentId)
     {
         var pausedSession = await repository.FindPausedSessionAsync(userId);
-        if (pausedSession == null)
+        if (pausedSession == null || pausedSession.Id != parentId)
         {
             return Result<ResumePomodoroResponse>.Failure("There is no paused session running.");
         }

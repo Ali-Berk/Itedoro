@@ -2,7 +2,7 @@ using Itedoro.Api.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Itedoro.Business.Services.WeeklyPlanService;
-using Itedoro.Business.Services.WeeklyPlanService.Dtos;
+using Itedoro.Business.Services.WeeklyPlanService.Dtos.Requests;
 namespace Itedoro.Api.Controllers;
 
 [Authorize]

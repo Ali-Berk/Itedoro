@@ -65,7 +65,6 @@ public class PomodoroRepository(
 
     public async Task<bool> IsUserTrue(Guid userId, Guid parenId)
     {
-        var session = await dbContext.ParentSessions.FindAsync(parenId);
-        return (session != null && session.UserId == userId);
+        return await dbContext.ParentSessions.AnyAsync(p => p.UserId == userId && p.Id == parenId);
     }
 }

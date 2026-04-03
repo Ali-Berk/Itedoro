@@ -1,4 +1,4 @@
-namespace Itedoro.Business.Services.WeeklyPlanService.Dtos;
+namespace Itedoro.Business.Services.WeeklyPlanService.Dtos.Requests;
 
 public record UpdatePlanRequest(
     string? Title,
