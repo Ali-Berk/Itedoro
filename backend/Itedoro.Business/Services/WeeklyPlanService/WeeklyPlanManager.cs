@@ -1,14 +1,20 @@
-using Itedoro.Data;
-using Microsoft.EntityFrameworkCore;
 using Itedoro.Business.Shared.Result;
 using Itedoro.Data.Entities.WeeklyPlan;
 using Itedoro.Business.Services.WeeklyPlanService.Dtos.Requests;
+using Itedoro.Business.Services.WeeklyPlanService.Dtos.Responses;
+using Itedoro.Data.Repositories.WeeklyPlan.Interfaces;
+using Itedoro.Data.Shared;
+using Itedoro.Business.Services.WeeklyPlanService.Mappers;
+using Itedoro.Business.Services.WeeklyPlanService.Interfaces;
 
 namespace Itedoro.Business.Services.WeeklyPlanService;
-
+/* TODO:
+ * Geçen Haftayı Kopyala
+ * Yaklaşanları Getir
+ */
 
 public class WeeklyPlanManager(
-    ItedoroDbContext dbContext): IWeeklyPlanService
+    IWeeklyPlanRepository repository): IWeeklyPlanService
 {
     public async Task<Result<Guid>> CreatePlan(Guid userId, CreatePlanRequest newPlan)
     {
@@ -19,68 +25,82 @@ public class WeeklyPlanManager(
             newPlan.EndDate,
             newPlan.Note,
             newPlan.ColorCode);
-
-        dbContext.PlanItems.Add(newPlanItem);
-        await dbContext.SaveChangesAsync();
+        await repository.AddAsync(newPlanItem);
+        await repository.SaveAsync();
         return Result<Guid>.Success(newPlanItem.Id);
     }
-
-    public async Task<Result> UpdatePlan(Guid planItemId, UpdatePlanRequest request)
+    public async Task<Result> UpdatePlan(Guid userId, UpdatePlanRequest request)
     {
-        var planItem = await dbContext.PlanItems.FirstOrDefaultAsync(i => i.Id == planItemId);
+        var planItem = await repository.GetByIdAsync(request.Id, userId);
         if (planItem == null)
         {
             return Result.Failure("Plan item not found.");
         }
+        
         planItem.UpdatePlan(
             request.Title,
             request.StartDate,
             request.EndDate,
             request.Note,
             request.ColorCode);
-        await dbContext.SaveChangesAsync();
+        await repository.SaveAsync();
         return Result.Success();
     }
 
-    public async Task<Result<List<PlanItem>>> GetAllPlans(Guid userId)
+    public async Task<Result> UpdateStatus(Guid planId)
     {
-        var allPlans = await dbContext.PlanItems
-            .AsNoTracking()
-            .Where(i => i.UserId == userId)
-            .ToListAsync();
-        if (!allPlans.Any())
+        var planItem = await repository.GetByIdAsync(planId);
+        if (planItem == null)
         {
-            return Result<List<PlanItem>>.Failure("No plans found");
+            return Result.Failure("Plan item not found.");
         }
-        return Result<List<PlanItem>>.Success(allPlans);
+        planItem.UpdateStatus();
+        return Result.Success();
     }
-
-    public async Task<Result<List<PlanItem>>> GetSelectedPlans(Guid userId, DateTime startDate, DateTime endDate)
-    {
-        var selectedPlans = await dbContext.PlanItems
-            .AsNoTracking()
-            .Where(i => i.UserId == userId)
-            .Where(d => d.StartDate < endDate && d.EndDate > startDate)
-            .ToListAsync();
-        if (!selectedPlans.Any())
-        {
-            return Result<List<PlanItem>>.Failure("No plans found");
-        }
-        return Result<List<PlanItem>>.Success(selectedPlans);
-    }
-
     public async Task<Result> DeletePlanItem(Guid userId, Guid planItemId)
     {
-        var selectedPlan = await dbContext.PlanItems
-            .Where(i => i.Id == planItemId && i.UserId == userId)
-            .FirstOrDefaultAsync();
+        var selectedPlan = await repository.GetByIdAsync(planItemId, userId);
+        
         if (selectedPlan == null)
         {
             return Result.Failure("No plans found");
         }
-
-        dbContext.PlanItems.Remove(selectedPlan);
-        await dbContext.SaveChangesAsync();
+        repository.Delete(selectedPlan);
+        await repository.SaveAsync();
         return Result.Success();
+    }
+    public async Task<Result<DatePagedResult<GetAllPlansPagedBetweenDatesResponse>>> GetAllPlansPagedBetweenDates(Guid userId, GetSelectedPlansRequest request)
+    {
+        var startDate = request.StartDate ?? DateTime.UtcNow;
+        var endDate = request.EndDate ?? startDate.AddDays(7);
+
+        var (rawSelectedPlans,hasMoreData) = await repository.GetPlansBetweenDatesAsync(userId, startDate, endDate);
+
+        var selectedPlans =
+            rawSelectedPlans
+            .Select(planItem => planItem.GetAllPlansPagedBetweenDatesResponseMapper())
+            .ToList();
+        
+        var result = new DatePagedResult<GetAllPlansPagedBetweenDatesResponse>(
+            Items:selectedPlans,
+            CurrentStartDate:startDate,
+            CurrentEndDate:endDate,
+            NextStartDate:hasMoreData ? endDate : null);
+        return Result<DatePagedResult<GetAllPlansPagedBetweenDatesResponse>>.Success(result);
+    }
+
+    public async Task<List<GetOverduePlansResponse>> GetAllOverduePlans(Guid userId, DateTime referenceDate, CancellationToken cancellationToken)
+    {
+        if (referenceDate == default)
+        {
+            referenceDate = DateTime.UtcNow;
+        }
+        var rawOverduePlans = await repository.GetOverduePlansAsync(userId, referenceDate, cancellationToken);
+        return rawOverduePlans.GetOverduePlansResponseMapper().ToList();
+    }
+
+    public Task<Result<List<GetOverduePlansResponse>>> GetAllUpcomingPlans(Guid userId, DateTime referenceDate)
+    {
+        throw new NotImplementedException();
     }
 }

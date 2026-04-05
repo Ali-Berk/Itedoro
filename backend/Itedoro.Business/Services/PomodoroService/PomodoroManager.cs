@@ -106,7 +106,7 @@ public class PomodoroManager(
 
     public async Task<Result<StopPomodoroResponse>> StopSessionAsync(Guid userId, Guid parentId)
     {
-        //Repositorye taşı
+        //TODO: Repositorye taşı
         var parent = await dbContext.ParentSessions
             .Include(c => c.ChildSessions)
             .FirstOrDefaultAsync(s => s.Id == parentId && s.UserId == userId);
@@ -138,6 +138,7 @@ public class PomodoroManager(
             parent.EndTime));
     }
 
+    // İki kere PagedResult değeri dönüyor bunun yerine managerda paged result dön.
     public async Task<Result<PagedResult<GetPomodoroHistoryResponse>>> GetPagedSessionsAsync(Guid userId, GetPomodoroHistoryRequest dto)
     {
         var rawSessions = await repository.GetPagedParentsAsync(userId, dto.Page, dto.PageSize );

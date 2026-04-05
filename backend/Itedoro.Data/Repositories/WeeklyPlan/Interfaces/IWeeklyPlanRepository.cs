@@ -1,18 +1,15 @@
 using Itedoro.Data.Entities.WeeklyPlan;
+using Itedoro.Data.Repositories.Repository.Interfaces;
+using Itedoro.Data.Shared;
 
 namespace Itedoro.Data.Repositories.WeeklyPlan.Interfaces;
 
-public interface IWeeklyPlanRepository
+public interface IWeeklyPlanRepository : IRepository<PlanItem>
 {
     Task<PlanItem?> GetByIdAsync(Guid id, Guid userId);
-    Task AddAsync(PlanItem planItem);
-    void Update(PlanItem planItem);
-    void Delete(PlanItem planItem);
-
-    Task<List<PlanItem>> GetPlansBetweenDatesAsync(Guid userId, DateTime startDate, DateTime endDate);
-
+    Task<(List<PlanItem> Plans, bool HasMoreData)> GetPlansBetweenDatesAsync(Guid userId, DateTime startDate, DateTime endDate);
     Task AddRangeAsync(IEnumerable<PlanItem> planItems);
-
-    Task<List<PlanItem>> GetOverduePlansAsync(Guid userId, DateTime referenceDate);
-    Task<List<PlanItem>> GetUpcomingPlansAsync(Guid userId, DateTime startDate, DateTime endDate);
+    Task<List<PlanItem>> GetOverduePlansAsync(Guid userId, DateTime referenceDate, CancellationToken cancellationToken);
+    Task<List<PlanItem>> GetUpcomingPlansAsync(Guid userId, DateTime startDate, DateTime endDate, CancellationToken cancellationToken);
+    Task<bool> IsAuthorized(Guid userId, Guid planId);
 }

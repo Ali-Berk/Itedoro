@@ -1,6 +1,7 @@
 namespace Itedoro.Business.Services.WeeklyPlanService.Dtos.Requests;
 
 public record UpdatePlanRequest(
+    Guid Id,
     string? Title,
     string? ColorCode,
     string? Note,
