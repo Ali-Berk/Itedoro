@@ -1,6 +1,6 @@
 namespace Itedoro.Business.Services.PomodoroService.Dtos.Responses;
 
-public record PausePomodororoResponse(
+public record PausePomodoroResponse(
     Guid ParentId,
     string NewStatus,
     DateTime UpdatedAt);

@@ -1,7 +1,7 @@
 # --- Build Çıktıları (.NET) ---
 [Bb]in/
 [Oo]bj/
-
+*.lscache
 # Windows için oluşturulmuş debug dosyası için. bin\debug
 *\\*
 

@@ -4,7 +4,7 @@ namespace Itedoro.Business.Services.PomodoroService.Mappers;
 
 public static class PomodoroMappingExtensions
 {
-    public static CreatePomodoroResponse ToCreateResponseDto(this ParentSession session)
+    public static CreatePomodoroResponse CreateResponseMapper(this ParentSession session)
     {
         return new CreatePomodoroResponse(
             ParentId: session.Id,
@@ -20,7 +20,7 @@ public static class PomodoroMappingExtensions
         );
     }
 
-    public static GetPomodoroHistoryResponse CreateGetPomodoroHistoryResponseDto(this ParentSession session)
+    public static GetPomodoroHistoryResponse GetPomodoroHistoryResponseMapper(this ParentSession session)
     {
         return new GetPomodoroHistoryResponse(
         Id: session.Id,
@@ -32,5 +32,30 @@ public static class PomodoroMappingExtensions
         CompletedChildCount: session.ChildSessions.Count(c => c.Status == PomodoroStatus.Complated),
         TotalChildCount: session.ChildSessions.Count
         );
+    }
+
+    public static ResumePomodoroResponse ResumePomodoroResponseMapper(this ParentSession session)
+    {
+        return new ResumePomodoroResponse(
+            ParentId: session.Id,
+            Status: session.Status.ToString(),
+            TotalWorkMinutes: session.TotalPlannedMinutes,
+            EndedAt: session.EndTime);
+    }
+
+    public static PausePomodoroResponse PausePomodoroResponseMapper(this ParentSession session)
+    {
+        return new PausePomodoroResponse(
+        ParentId: session.Id,
+        NewStatus: session.Status.ToString(),
+        UpdatedAt: session.PauseStart.Value);
+    }
+
+    public static StopPomodoroResponse StopPomodoroResponseMapper(this ParentSession session)
+    {
+        return new StopPomodoroResponse(
+            ParentId: session.Id,
+            Status: session.Status.ToString(),
+            EndedAt: session.EndTime);
     }
 }

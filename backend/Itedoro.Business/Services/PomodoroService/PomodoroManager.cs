@@ -17,7 +17,7 @@ public class PomodoroManager(
 ) : IPomodoroService
 {
     //Geliştirilebilir. Çocukları parent ekleyebilir ayrıca aktifleri domain üzerinden iptal edebiliriz.
-    public async Task<Result<CreatePomodoroResponse>> CreateSessionAsync(Guid userId, PomodoroPreferencesDto dto)
+    public async Task<Result<CreatePomodoroResponse>> CreateSessionAsync(Guid userId, CreatePomodoroRequest dto)
     {
         
         var activeSession = await repository.FindActiveSessionAsync(userId); 

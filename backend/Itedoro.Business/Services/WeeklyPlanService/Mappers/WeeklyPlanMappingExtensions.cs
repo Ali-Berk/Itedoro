@@ -26,7 +26,21 @@ public static class WeeklyPlanMappingExtensions
             StartDate: weeklyPlan.StartDate,
             EndDate: weeklyPlan.EndDate,
             ColorCode: weeklyPlan.ColorCode,
-            Note: weeklyPlan.Note
+            Note: weeklyPlan.Note,
+            IsComplete: weeklyPlan.IsCompleted
+        ));
+    }
+    
+    public static IEnumerable<GetUpcomingPlansResponse> GetUpcomingPlansResponseMapper(this IEnumerable<PlanItem> weeklyPlans)
+    {
+        return weeklyPlans.Select(weeklyPlan => new GetUpcomingPlansResponse(
+            Id: weeklyPlan.Id,
+            Title: weeklyPlan.Title,
+            StartDate: weeklyPlan.StartDate,
+            EndDate: weeklyPlan.EndDate,
+            ColorCode: weeklyPlan.ColorCode,
+            Note: weeklyPlan.Note,
+            IsComplete:  weeklyPlan.IsCompleted
         ));
     }
 }

@@ -1,4 +1,3 @@
-using Itedoro.Business.Services.PomodoroService.Dtos;
 using Itedoro.Business.Services.PomodoroService.Dtos.Requests;
 using Itedoro.Business.Services.PomodoroService.Dtos.Responses;
 using Itedoro.Business.Shared.Result;
@@ -8,7 +7,7 @@ namespace Itedoro.Business.Services.PomodoroService.Interfaces;
 
 public interface IPomodoroService
 {
-    Task<Result<CreatePomodoroResponse>> CreateSessionAsync(Guid userId, PomodoroPreferencesDto dto);
+    Task<Result<CreatePomodoroResponse>> CreateSessionAsync(Guid userId, CreatePomodoroRequest dto);
 
     Task<Result<PausePomodoroResponse>> PauseSessionAsync(Guid userId, Guid parentId);
     Task<Result<ResumePomodoroResponse>> ResumeSessionAsync(Guid userId, Guid parentId);

@@ -1,6 +1,6 @@
 namespace Itedoro.Business.Services.WeeklyPlanService.Dtos.Responses;
 
-public record GetOverduePlansResponse(
+public record GetUpcomingPlansResponse(
     Guid Id,
     string Title,
     string? Note,

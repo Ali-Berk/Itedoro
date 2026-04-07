@@ -20,7 +20,7 @@ public class PomodoroController(
     //WARN: frontend her child bitiminde backende istek atıp güncellemelidir.
     [HttpPost]
     [ProducesResponseType(typeof(CreatePomodoroResponse), StatusCodes.Status200OK)]
-    public async Task<IActionResult> StartPomodoro([FromBody] PomodoroPreferencesDto request)
+    public async Task<IActionResult> StartPomodoro([FromBody] CreatePomodoroRequest request)
     {
         if (!User.TryGetUserId(out Guid userId))
             return Unauthorized();

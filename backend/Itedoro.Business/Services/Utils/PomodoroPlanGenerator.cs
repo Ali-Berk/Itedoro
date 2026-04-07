@@ -1,10 +1,11 @@
 using Itedoro.Business.Services.PomodoroService.Dtos;
+using Itedoro.Business.Services.PomodoroService.Dtos.Requests;
 
 namespace Itedoro.Business.Services.Utils;
 public class PomodoroPlanGenerator
 {
     //TODO: Son child Mola veya Uzun Mola olamaz.
-    public List<(int Duration, PomodoroType Type, int Order)> Generate(PomodoroPreferencesDto prefs)
+    public List<(int Duration, PomodoroType Type, int Order)> Generate(CreatePomodoroRequest prefs)
     {
         var planList = new List<(int Duration, PomodoroType Type, int Order)>();
         int remainingMinutes = prefs.TotalMinutes;
