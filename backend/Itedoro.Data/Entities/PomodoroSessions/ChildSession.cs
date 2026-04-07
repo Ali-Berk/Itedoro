@@ -4,19 +4,20 @@ namespace Itedoro.Data.Entities.PomodoroSessions;
 
 public class ChildSession
 {
-    public Guid Id {get; init;}
-    public Guid ParentSessionId {get; init;}
+    public Guid Id { get; init; }
+    public Guid ParentSessionId { get; init; }
 
-    public PomodoroType Type {get; init;}
-    public PomodoroStatus Status {get; set;}
-    
+    public PomodoroType Type { get; init; }
+    public PomodoroStatus Status { get; set; }
+
     public int Order { get; init; }
-    public int PlannedDurationMinutes {get; init;}
+    public int PlannedDurationMinutes { get; init; }
 
-    [JsonIgnore]
-    public virtual ParentSession ParentSession {get; set;} = null!;
+    [JsonIgnore] public virtual ParentSession ParentSession { get; set; } = null!;
 
-    protected ChildSession(){}
+    protected ChildSession()
+    {
+    }
 
     public ChildSession(Guid parentSessionId, int plannedDurationMinutes, PomodoroType type, int order)
     {
@@ -26,5 +27,36 @@ public class ChildSession
         Type = type;
         Status = PomodoroStatus.Running;
         PlannedDurationMinutes = plannedDurationMinutes;
+    }
+
+    public void Pause()
+    {
+        if (Status is (PomodoroStatus.Complated or PomodoroStatus.Canceled or PomodoroStatus.Paused))
+            return;
+
+        Status = PomodoroStatus.Paused;
+    }
+
+    public void Resume()
+    {
+        if (Status != PomodoroStatus.Paused) 
+            return;
+        
+        Status = PomodoroStatus.Running;
+    }
+
+    public void Stop()
+    {
+        if (Status is not (PomodoroStatus.Canceled or PomodoroStatus.Complated))
+            return;
+        
+        Status = PomodoroStatus.Canceled;
+    }
+
+    public void SkipBreak()
+    {
+        if (Status is PomodoroStatus.Complated or PomodoroStatus.Canceled)
+            return;
+        Status = PomodoroStatus.Complated;
     }
 }

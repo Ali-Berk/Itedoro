@@ -2,33 +2,34 @@ using Itedoro.Data.Shared;
 using Microsoft.EntityFrameworkCore;
 using Itedoro.Data.Entities.PomodoroSessions;
 using Itedoro.Data.Repositories.Pomodoro.Interfaces;
+using Itedoro.Data.Repositories.Repository;
 
 namespace Itedoro.Data.Repositories.Pomodoro;
 
 public class PomodoroRepository(
-    ItedoroDbContext dbContext) : IPomodoroRepository
+    ItedoroDbContext context) : Repository<ParentSession>(context), IPomodoroRepository
 {
     public async Task<ParentSession?> FindActiveSessionAsync(Guid userId)
     {
         return await
-            dbContext.ParentSessions
+            Context.ParentSessions
                 .Include(p => p.ChildSessions)
                 .FirstOrDefaultAsync(s => s.UserId == userId && s.Status == PomodoroStatus.Running);
     }
     public async Task<ParentSession?> FindPausedSessionAsync(Guid userId)
     {
         return await
-            dbContext.ParentSessions
+            Context.ParentSessions
                 .Include(c => c.ChildSessions)
                 .FirstOrDefaultAsync(s => s.UserId == userId && s.Status == PomodoroStatus.Paused);
     }
 
     public async Task<PagedResult<ParentSession>> GetPagedParentsAsync(Guid userId, int page, int pageSize)
     {
-        var totalCount = await dbContext.ParentSessions.CountAsync(s => s.UserId == userId);
+        var totalCount = await Context.ParentSessions.CountAsync(s => s.UserId == userId);
         
         var sessions = await
-            dbContext.ParentSessions
+            Context.ParentSessions
                 .AsNoTracking()
                 .Where(s => s.UserId == userId)
                 .OrderByDescending(d => d.StartTime)
@@ -39,24 +40,27 @@ public class PomodoroRepository(
                 .ToListAsync();
         return new PagedResult<ParentSession>(sessions, totalCount, page, pageSize);
     }
-
-    public async Task<ParentSession?> FindParentSessionByParentIdAsync(Guid parentId)
+    
+    public async Task<ParentSession?> FindSkippableBreakAsync(Guid parentId, Guid childId)
     {
-        return await 
-            dbContext.ParentSessions
-                .FirstOrDefaultAsync(p => p.Id == parentId);
+        return await Context.ParentSessions
+            .Include(p => p.ChildSessions
+                .Where(c => 
+                c.Id == childId && 
+                c.Type != PomodoroType.Work &&
+                c.Status == PomodoroStatus.Running))
+            .FirstOrDefaultAsync(p => p.Id == parentId);
     }
 
-    public async Task<ChildSession?> FindBreakByParentIdAndChildIdAsync(Guid parentId, Guid childId)
+    public async Task<ParentSession?> GetUserSessionWithChildrenAsync(Guid userId, Guid parentId)
     {
-        return await dbContext.ChildSessions
-            .Where(c => c.ParentSessionId == parentId && c.Type != PomodoroType.Work && c.Id == childId)
-            .FirstOrDefaultAsync();
+        return await Context.ParentSessions
+            .Include(c => c.ChildSessions)
+            .FirstOrDefaultAsync(s => s.Id == parentId && s.UserId == userId);
     }
-
     public async Task<bool> DeleteSessionAsync(Guid parentId)
     {
-        var row = await dbContext.ParentSessions
+        var row = await Context.ParentSessions
             .Where(p => p.Id == parentId)
             .ExecuteDeleteAsync();
         
@@ -65,6 +69,6 @@ public class PomodoroRepository(
 
     public async Task<bool> IsUserTrue(Guid userId, Guid parenId)
     {
-        return await dbContext.ParentSessions.AnyAsync(p => p.UserId == userId && p.Id == parenId);
+        return await Context.ParentSessions.AnyAsync(p => p.UserId == userId && p.Id == parenId);
     }
 }

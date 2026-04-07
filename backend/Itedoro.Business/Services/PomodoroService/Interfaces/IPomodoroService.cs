@@ -10,7 +10,7 @@ public interface IPomodoroService
 {
     Task<Result<CreatePomodoroResponse>> CreateSessionAsync(Guid userId, PomodoroPreferencesDto dto);
 
-    Task<Result<PausePomodororoResponse>> PauseSessionAsync(Guid userId, Guid parentId);
+    Task<Result<PausePomodoroResponse>> PauseSessionAsync(Guid userId, Guid parentId);
     Task<Result<ResumePomodoroResponse>> ResumeSessionAsync(Guid userId, Guid parentId);
     Task<Result<StopPomodoroResponse>> StopSessionAsync(Guid userId, Guid parentId);
     Task<Result<PagedResult<GetPomodoroHistoryResponse>>> GetPagedSessionsAsync(Guid userId, GetPomodoroHistoryRequest dto);

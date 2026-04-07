@@ -32,4 +32,56 @@ public class ParentSession
         StartTime = DateTime.UtcNow;
         EndTime = StartTime.AddMinutes(totalPlannedMinutes);
     }
+
+    public void Pause()
+    {
+        if (Status != PomodoroStatus.Running)
+            return;
+        
+        Status = PomodoroStatus.Paused;
+        PauseStart = DateTime.UtcNow;
+        foreach (var child in ChildSessions)
+        {
+            child.Pause();
+        }
+    }
+
+    public void Resume()
+    {
+        if (Status != PomodoroStatus.Paused)
+            return;
+            
+        Status = PomodoroStatus.Running;
+        PauseStop = DateTime.UtcNow;
+        TimeSpan? diff = PauseStop - PauseStart;
+        double diffMinutes = diff?.TotalMinutes ?? 0;
+        EndTime = EndTime.AddMinutes(diffMinutes);
+
+        foreach (var child in ChildSessions)
+        {
+            child.Resume();
+        }
+    }
+
+    public void Stop()
+    {
+        if (Status is (PomodoroStatus.Complated or PomodoroStatus.Canceled))
+            return;
+        
+        Status = PomodoroStatus.Canceled;
+        EndTime = DateTime.UtcNow;
+        foreach (var child in ChildSessions)
+        {
+            child.Stop();
+        }
+    }
+    public void SkipBreak(Guid childId)
+    {
+        var child = ChildSessions.FirstOrDefault(c => c.Id == childId);
+        if (child == null || child.Type == PomodoroType.Work || child.Status == PomodoroStatus.Complated)
+            return;
+        
+        child.SkipBreak();
+        EndTime = EndTime.AddMinutes(-child.PlannedDurationMinutes);
+    }
 }

@@ -38,7 +38,7 @@ public class PomodoroController(
         });
     }
     [HttpPatch("pause/{parentPomodoroSessionId}")]
-    [ProducesResponseType(typeof(PausePomodororoResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(PausePomodoroResponse), StatusCodes.Status200OK)]
     public async Task<IActionResult> Pause(Guid parentPomodoroSessionId)
     {
         if (!User.TryGetUserId(out Guid userId))
