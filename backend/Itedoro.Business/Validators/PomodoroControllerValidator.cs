@@ -1,5 +1,4 @@
 using FluentValidation;
-using Itedoro.Business.Services.PomodoroService.Dtos;
 using Itedoro.Business.Services.PomodoroService.Dtos.Requests;
 
 namespace Itedoro.Business.Validators;

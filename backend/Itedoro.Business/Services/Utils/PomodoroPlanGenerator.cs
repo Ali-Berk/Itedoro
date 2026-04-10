@@ -1,5 +1,5 @@
-using Itedoro.Business.Services.PomodoroService.Dtos;
 using Itedoro.Business.Services.PomodoroService.Dtos.Requests;
+using Itedoro.Data.Entities.PomodoroSessions.Enums;
 
 namespace Itedoro.Business.Services.Utils;
 public class PomodoroPlanGenerator

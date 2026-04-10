@@ -2,7 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Itedoro.Data;
 
-namespace Itedoro.Business.Daemons.TokenCleanupDaemon;
+namespace Itedoro.Business.Daemons;
 
 public class TokenCleanupDaemon : BackgroundService
 {

@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Itedoro.Data.Entities.Roles;
 
+namespace Itedoro.Data.Configurations;
 public class RoleConfiguration : IEntityTypeConfiguration<Role>
 {
     private static readonly Guid AdminRoleId = Guid.Parse("A1B2C3D4-E5F6-4A5B-8C9D-0E1F2A3B4C5D");

@@ -1,4 +1,3 @@
-using Itedoro.Business.Validators;
 using Microsoft.Extensions.DependencyInjection;
 using FluentValidation;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;

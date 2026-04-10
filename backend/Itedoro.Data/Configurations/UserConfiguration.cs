@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Itedoro.Data.Entities.Users;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Itedoro.Data.Configurations.Users
+namespace Itedoro.Data.Configurations
 {
     public class UserConfiguration : IEntityTypeConfiguration<User>
     {

@@ -1,4 +1,3 @@
-using System.ComponentModel.DataAnnotations;
 using FluentValidation;
 using Itedoro.Business.Services.AuthServices.Dtos.Requests;
 

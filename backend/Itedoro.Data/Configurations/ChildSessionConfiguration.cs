@@ -10,7 +10,6 @@ public class ChildSessionConfiguration : IEntityTypeConfiguration<ChildSession>
     {
         builder.HasKey(x => x.Id);
         
-        // Parent ile ilişkiyi mühürle
         builder.HasOne(x => x.ParentSession)
                .WithMany(p => p.ChildSessions)
                .HasForeignKey(x => x.ParentSessionId);

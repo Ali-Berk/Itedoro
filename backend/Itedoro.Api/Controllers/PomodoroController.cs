@@ -1,7 +1,6 @@
 using Itedoro.Api.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using Itedoro.Business.Services.PomodoroService.Dtos;
 using Itedoro.Business.Services.PomodoroService.Dtos.Requests;
 using Itedoro.Business.Services.PomodoroService.Dtos.Responses;
 using Itedoro.Business.Services.PomodoroService.Interfaces;

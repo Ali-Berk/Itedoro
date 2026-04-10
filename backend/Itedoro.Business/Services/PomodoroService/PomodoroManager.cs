@@ -3,11 +3,11 @@ using Itedoro.Business.Shared.Result;
 using Itedoro.Business.Services.Utils;
 using Itedoro.Data.Entities.PomodoroSessions;
 using Itedoro.Data.Repositories.Pomodoro.Interfaces;
-using Itedoro.Business.Services.PomodoroService.Dtos;
 using Itedoro.Business.Services.PomodoroService.Dtos.Requests;
 using Itedoro.Business.Services.PomodoroService.Mappers;
 using Itedoro.Business.Services.PomodoroService.Interfaces;
 using Itedoro.Business.Services.PomodoroService.Dtos.Responses;
+using Itedoro.Data.Entities.PomodoroSessions.Enums;
 
 namespace Itedoro.Business.Services.PomodoroService;
 
@@ -21,11 +21,9 @@ public class PomodoroManager(
     {
         
         var activeSession = await repository.FindActiveSessionAsync(userId); 
-        
         if(activeSession != null)
         {
-            activeSession.Status = PomodoroStatus.Canceled;
-            activeSession.EndTime = DateTime.UtcNow;
+            activeSession.Stop();
         }
 
         var newSession = new ParentSession(userId, dto.TotalMinutes, dto.Note);

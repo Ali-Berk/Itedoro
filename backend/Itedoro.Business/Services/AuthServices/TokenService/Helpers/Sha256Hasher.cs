@@ -1,7 +1,7 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
 
-namespace Itedoro.Business.Services.TokenService.Helpers;
+namespace Itedoro.Business.Services.AuthServices.TokenService.Helpers;
 
 internal static class Sha256Hasher
 {

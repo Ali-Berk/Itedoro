@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Itedoro.Data.Entities.PomodoroSessions;
 using Itedoro.Data.Repositories.Pomodoro.Interfaces;
 using Itedoro.Data.Repositories.Repository;
-
+using Itedoro.Data.Entities.PomodoroSessions.Enums;
 namespace Itedoro.Data.Repositories.Pomodoro;
 
 public class PomodoroRepository(

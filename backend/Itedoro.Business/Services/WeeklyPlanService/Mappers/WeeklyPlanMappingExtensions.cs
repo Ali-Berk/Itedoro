@@ -1,6 +1,5 @@
 using Itedoro.Business.Services.WeeklyPlanService.Dtos.Responses;
 using Itedoro.Data.Entities.WeeklyPlan;
-using Itedoro.Data.Shared;
 
 namespace Itedoro.Business.Services.WeeklyPlanService.Mappers;
 

@@ -1,5 +1,8 @@
 using Itedoro.Business.Services.PomodoroService.Dtos.Responses;
+using Itedoro.Data.Entities.PomodoroSessions.Enums;
 using Itedoro.Data.Entities.PomodoroSessions;
+using Itedoro.Data.Shared;
+
 namespace Itedoro.Business.Services.PomodoroService.Mappers;
 
 public static class PomodoroMappingExtensions
@@ -45,10 +48,15 @@ public static class PomodoroMappingExtensions
 
     public static PausePomodoroResponse PausePomodoroResponseMapper(this ParentSession session)
     {
+        var pauseStart = session.PauseStart;
+        if (pauseStart == null)
+        {
+            throw new InvalidOperationException("PauseStart value cannot be null for a paused session..");
+        }
         return new PausePomodoroResponse(
         ParentId: session.Id,
         NewStatus: session.Status.ToString(),
-        UpdatedAt: session.PauseStart.Value);
+        UpdatedAt: pauseStart.Value);
     }
 
     public static StopPomodoroResponse StopPomodoroResponseMapper(this ParentSession session)

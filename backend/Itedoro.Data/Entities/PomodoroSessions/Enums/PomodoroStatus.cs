@@ -1,3 +1,4 @@
+namespace Itedoro.Data.Entities.PomodoroSessions.Enums;
 public enum PomodoroStatus
 {
     Running = 1,

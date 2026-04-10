@@ -1,8 +1,9 @@
 using Itedoro.Business.Services.Utils;
+using Itedoro.Business.Services.UserServices.Interfaces;
 using Itedoro.Business.Services.UserServices;
 using Microsoft.Extensions.DependencyInjection;
 using Itedoro.Business.Services.PomodoroService;
-using Itedoro.Business.Daemons.TokenCleanupDaemon;
+using Itedoro.Business.Daemons;
 using Itedoro.Business.Services.WeeklyPlanService;
 using Itedoro.Business.Services.WeeklyPlanService.Interfaces;
 using Itedoro.Business.Services.AuthServices.LoginService;
