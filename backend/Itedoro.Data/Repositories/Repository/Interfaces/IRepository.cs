@@ -10,4 +10,6 @@ namespace Itedoro.Data.Repositories.Repository.Interfaces;
         void Delete(T entity);
         Task<bool> AnyAsync(Expression<Func<T, bool>> predicate);
         Task SaveAsync();
+        Task SaveAsync(CancellationToken cancellationToken);
+        
     }

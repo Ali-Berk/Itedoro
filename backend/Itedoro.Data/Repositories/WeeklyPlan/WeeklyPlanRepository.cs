@@ -1,7 +1,6 @@
 using Itedoro.Data.Entities.WeeklyPlan;
 using Itedoro.Data.Repositories.Repository;
 using Itedoro.Data.Repositories.WeeklyPlan.Interfaces;
-using Itedoro.Data.Shared;
 using Microsoft.EntityFrameworkCore;
 
 namespace Itedoro.Data.Repositories.WeeklyPlan;
@@ -15,16 +14,22 @@ public class WeeklyPlanRepository(ItedoroDbContext context) : Repository<PlanIte
             .FirstOrDefaultAsync();
     }
 
-    public async Task<(List<PlanItem> Plans, bool HasMoreData)> GetPlansBetweenDatesAsync(Guid userId, DateTime startDate, DateTime endDate)
+    public async Task<(List<PlanItem> Plans, bool HasMoreData)> GetPlansBetweenDatesAsync(Guid userId, DateTime startDate, DateTime endDate, int page, int pageSize)
     {
-        var hasMoreData = await Context.PlanItems
-            .AnyAsync(p => p.UserId == userId && p.EndDate >= endDate);
+        var query = Context.PlanItems
+            .AsNoTracking()
+            .Where(p => p.UserId == userId && p.EndDate >= startDate && p.StartDate <= endDate);
+        var totalCount = await query.CountAsync();
+        var hasMoreData = totalCount > (page * pageSize);
         
         var items = await Context.PlanItems
             .AsNoTracking()
             .Where(p => p.UserId == userId && p.EndDate >= startDate && p.StartDate <= endDate)
             .OrderBy(p => p.StartDate)
+            .Skip((page - 1)*pageSize)
+            .Take(pageSize)
             .ToListAsync();
+        
         return (items, hasMoreData);
     }
 
@@ -46,7 +51,7 @@ public class WeeklyPlanRepository(ItedoroDbContext context) : Repository<PlanIte
     {
         return await Context.PlanItems
             .AsNoTracking()
-            .Where(p => p.UserId == userId && p.StartDate >= startDate && p.EndDate <= endDate)
+            .Where(p => p.UserId == userId && p.StartDate >= startDate && p.EndDate <= endDate && !p.IsCompleted)
             .OrderBy(p => p.StartDate)
             .ToListAsync(cancellationToken);
     }

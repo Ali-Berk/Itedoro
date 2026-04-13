@@ -8,10 +8,6 @@ using Itedoro.Business.Services.WeeklyPlanService.Mappers;
 using Itedoro.Business.Services.WeeklyPlanService.Interfaces;
 
 namespace Itedoro.Business.Services.WeeklyPlanService;
-/* TODO:
- * Geçen Haftayı Kopyala
- * Yaklaşanları Getir
- */
 
 public class WeeklyPlanManager(
     IWeeklyPlanRepository repository): IWeeklyPlanService
@@ -47,14 +43,16 @@ public class WeeklyPlanManager(
         return Result.Success();
     }
 
-    public async Task<Result> UpdateStatus(Guid planId)
+    public async Task<Result> UpdateStatus(Guid userId, Guid planId)
     {
-        var planItem = await repository.GetByIdAsync(planId);
+        
+        var planItem = await repository.GetByIdAsync(planId, userId);
         if (planItem == null)
         {
             return Result.Failure("Plan item not found.");
         }
         planItem.UpdateStatus();
+        await repository.SaveAsync();
         return Result.Success();
     }
     public async Task<Result> DeletePlanItem(Guid userId, Guid planItemId)
@@ -74,7 +72,7 @@ public class WeeklyPlanManager(
         var startDate = request.StartDate ?? DateTime.UtcNow;
         var endDate = request.EndDate ?? startDate.AddDays(7);
 
-        var (rawSelectedPlans,hasMoreData) = await repository.GetPlansBetweenDatesAsync(userId, startDate, endDate);
+        var (rawSelectedPlans,hasMoreData) = await repository.GetPlansBetweenDatesAsync(userId, startDate, endDate, request.Page, request.PageSize);
 
         var selectedPlans =
             rawSelectedPlans
@@ -99,8 +97,16 @@ public class WeeklyPlanManager(
         return rawOverduePlans.GetOverduePlansResponseMapper().ToList();
     }
 
-    public Task<Result<List<GetOverduePlansResponse>>> GetAllUpcomingPlans(Guid userId, DateTime referenceDate)
+    public async Task<List<GetUpcomingPlansResponse>> GetAllUpcomingPlans(Guid userId, DateTime startDate, DateTime endDate, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        if (startDate == default)
+            startDate = DateTime.UtcNow;
+
+        if (endDate == default)
+            endDate = startDate.AddDays(7);
+
+        var rawUpcomingPlans =
+            await repository.GetUpcomingPlansAsync(userId, startDate, endDate, cancellationToken);
+        return rawUpcomingPlans.GetUpcomingPlansResponseMapper().ToList();
     }
 }

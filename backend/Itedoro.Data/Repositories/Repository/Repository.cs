@@ -26,4 +26,6 @@ public class Repository<T>(ItedoroDbContext context) : IRepository<T> where T : 
 
     public async Task SaveAsync() 
         => await Context.SaveChangesAsync(); 
+    public async Task SaveAsync(CancellationToken ct) 
+        => await Context.SaveChangesAsync(ct); 
 }
