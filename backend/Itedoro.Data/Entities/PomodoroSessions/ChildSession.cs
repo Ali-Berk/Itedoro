@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Itedoro.Data.Entities.PomodoroSessions.Enums;
 
 namespace Itedoro.Data.Entities.PomodoroSessions;
 
@@ -8,25 +9,28 @@ public class ChildSession
     public Guid ParentSessionId { get; init; }
 
     public PomodoroType Type { get; init; }
-    public PomodoroStatus Status { get; set; }
+    public PomodoroStatus Status { get; private set; }
 
     public int Order { get; init; }
     public int PlannedDurationMinutes { get; init; }
 
-    [JsonIgnore] public virtual ParentSession ParentSession { get; set; } = null!;
+    [JsonIgnore] public virtual ParentSession ParentSession { get; init; } = null!;
 
-    protected ChildSession()
+    public ChildSession(
+        Guid parentSessionId,
+        int plannedDurationMinutes,
+        PomodoroType type,
+        int order,
+        PomodoroStatus status = PomodoroStatus.Running,
+        Guid id = default)
     {
-    }
+        Id = id == Guid.Empty ? Guid.NewGuid() : id;
 
-    public ChildSession(Guid parentSessionId, int plannedDurationMinutes, PomodoroType type, int order)
-    {
-        Id = Guid.NewGuid();
         ParentSessionId = parentSessionId;
-        Order = order;
-        Type = type;
-        Status = PomodoroStatus.Running;
         PlannedDurationMinutes = plannedDurationMinutes;
+        Type = type;
+        Order = order;
+        Status = status;
     }
 
     public void Pause()
@@ -44,10 +48,9 @@ public class ChildSession
         
         Status = PomodoroStatus.Running;
     }
-
     public void Stop()
     {
-        if (Status is not (PomodoroStatus.Canceled or PomodoroStatus.Complated))
+        if (Status is (PomodoroStatus.Canceled or PomodoroStatus.Complated))
             return;
         
         Status = PomodoroStatus.Canceled;

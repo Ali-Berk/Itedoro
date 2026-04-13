@@ -1,36 +1,51 @@
 using Itedoro.Data.Entities.Users;
+using Itedoro.Data.Entities.PomodoroSessions.Enums;
 
 namespace Itedoro.Data.Entities.PomodoroSessions;
 public class ParentSession
 {
-    public Guid Id {get; set;}
-    public Guid UserId {get; set;}
+    public Guid Id {get; init;}
+    public Guid UserId {get; init;}
 
-    public int TotalPlannedMinutes {get; set;}
+    public int TotalPlannedMinutes {get; private set;}
 
-    public PomodoroStatus Status { get; set; }
+    public PomodoroStatus Status { get; private set; }
 
     public DateTime StartTime { get; init;}
-    public DateTime EndTime {get; set;}
-    public DateTime? PauseStart { get; set; }
-    public DateTime? PauseStop { get; set; }
+    public DateTime EndTime {get; private set;}
+    public DateTime? PauseStart { get; private set; }
+    public DateTime? PauseStop { get; private set; }
     
-    public string? Note {get; set;}
+    public string? Note {get; private set;}
 
-    public virtual ICollection<ChildSession> ChildSessions {get; set;} = new List<ChildSession>();
-    public virtual User User {get; set;} = null!;
+    public virtual ICollection<ChildSession> ChildSessions {get; init;} = new List<ChildSession>();
+    public virtual User User {get; init;} = null!;
 
-    protected ParentSession() {}
-
-    public ParentSession(Guid userId, int totalPlannedMinutes, string? note = "")
+    public ParentSession(
+        Guid userId,
+        int totalPlannedMinutes,
+        string? note = null,
+        Guid id = default,
+        PomodoroStatus status = PomodoroStatus.Running,
+        DateTime startTime = default,
+        DateTime endTime = default,
+        DateTime? pauseStart = null,
+        DateTime? pauseStop = null
+    )
     {
-        Id = Guid.NewGuid();
+        Id = id == Guid.Empty ? Guid.NewGuid() : id;
+
         UserId = userId;
         TotalPlannedMinutes = totalPlannedMinutes;
         Note = note;
-        Status = PomodoroStatus.Running;
-        StartTime = DateTime.UtcNow;
-        EndTime = StartTime.AddMinutes(totalPlannedMinutes);
+        Status = status;
+
+        StartTime = startTime == default ? DateTime.UtcNow : startTime;
+        EndTime = endTime == default ? StartTime.AddMinutes(totalPlannedMinutes) : endTime;
+
+        PauseStart = pauseStart;
+        PauseStop = pauseStop;
+        
     }
 
     public void Pause()
@@ -62,7 +77,6 @@ public class ParentSession
             child.Resume();
         }
     }
-
     public void Stop()
     {
         if (Status is (PomodoroStatus.Complated or PomodoroStatus.Canceled))
