@@ -1,12 +1,11 @@
-using Itedoro.Data;
-using Itedoro.Business;
-using Itedoro.Data.Entities.Users;
-using Itedoro.Business.Validators;
+using Itedoro.Persistence;
+using Itedoro.Application;
+using Itedoro.Domain.Entities.Users;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Itedoro.Api.DependencyInjection;
-using Itedoro.Data.DependencyInjection;
-using Itedoro.Business.Services.AuthServices.LoginService;
+using Itedoro.Persistence.DependencyInjection;
+using Itedoro.Application.Services.AuthServices.LoginService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,8 +15,8 @@ builder.Services.AddDbContext<ItedoroDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))); 
 builder.Services.AddRepositories();
 
-builder.Services.AddBusinessServices();
-builder.Services.AddBusinessValidators();
+builder.Services.AddApplicationServices();
+builder.Services.AddApplicationValidators();
 builder.Services.AddAutoMapper(cfg => cfg.AddMaps(typeof(LoginManager).Assembly));
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 

@@ -20,11 +20,11 @@
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.0" />
     <PackageReference Include="SharpGrip.FluentValidation.AutoValidation.Mvc" Version="2.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.7" />
-    <ProjectReference Include="..\Itedoro.Data\Itedoro.Data.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Itedoro.Business\Itedoro.Business.csproj" />
+    <ProjectReference Include="..\Itedoro.Application\Itedoro.Application.csproj" />
+    <ProjectReference Include="..\Itedoro.Persistence\Itedoro.Persistence.csproj" />
   </ItemGroup>
 
 </Project>

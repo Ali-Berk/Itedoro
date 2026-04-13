@@ -1,5 +1,9 @@
+using Itedoro.Data.Repositories.Auth;
+using Itedoro.Data.Repositories.Auth.Interfaces;
 using Itedoro.Data.Repositories.Pomodoro;
 using Itedoro.Data.Repositories.Pomodoro.Interfaces;
+using Itedoro.Data.Repositories.RefreshToken;
+using Itedoro.Data.Repositories.RefreshToken.Interfaces;
 using Itedoro.Data.Repositories.Repository.Interfaces;
 using Itedoro.Data.Repositories.Repository;
 using Itedoro.Data.Repositories.WeeklyPlan;
@@ -16,6 +20,8 @@ public static class RepositoriesDependencyInjection
         
         repositories.AddScoped<IPomodoroRepository, PomodoroRepository>();
         repositories.AddScoped<IWeeklyPlanRepository, WeeklyPlanRepository>();
+        repositories.AddScoped<IAuthRepository, AuthRepository>();
+        repositories.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         return repositories;    
     }
 }

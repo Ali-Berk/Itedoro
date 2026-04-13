@@ -1,10 +1,10 @@
 using Itedoro.Api.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using Itedoro.Business.Services.PomodoroService.Dtos.Requests;
-using Itedoro.Business.Services.PomodoroService.Dtos.Responses;
-using Itedoro.Business.Services.PomodoroService.Interfaces;
-using Itedoro.Data.Shared;
+using Itedoro.Application.Services.PomodoroService.Dtos.Requests;
+using Itedoro.Application.Services.PomodoroService.Dtos.Responses;
+using Itedoro.Application.Services.PomodoroService.Interfaces;
+using Itedoro.Application.Common.Models;
 
 namespace Itedoro.Api.Controllers;
 

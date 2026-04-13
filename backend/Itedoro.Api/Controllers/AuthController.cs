@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
-using Itedoro.Business.Services.AuthServices.TokenService;
-using Itedoro.Business.Services.AuthServices.LoginService;
-using Itedoro.Business.Services.AuthServices.Dtos.Requests;
-using Itedoro.Business.Services.AuthServices.Dtos.Responses;
-using Itedoro.Business.Services.AuthServices.RegisterService;
+using Itedoro.Application.Services.AuthServices.Dtos.Requests;
+using Itedoro.Application.Services.AuthServices.Dtos.Responses;
+using Itedoro.Application.Services.AuthServices.LoginService.Interfaces;
+using Itedoro.Application.Services.AuthServices.RegisterService.Interfaces;
+using Itedoro.Application.Services.AuthServices.TokenService.Interfaces;
 
 namespace Itedoro.Api.Controllers;
 
