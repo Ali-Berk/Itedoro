@@ -1,4 +1,3 @@
-using Itedoro.Data;
 using Itedoro.Data.Entities.Users;
 using Microsoft.AspNetCore.Identity;
 using Itedoro.Business.Shared.Result;
@@ -6,12 +5,15 @@ using Microsoft.Extensions.Configuration;
 using Itedoro.Business.Services.AuthServices.TokenService;
 using Itedoro.Business.Services.AuthServices.Dtos.Responses;
 using Itedoro.Business.Services.AuthServices.Dtos.Requests;
+using Itedoro.Data.Repositories.Auth.Interfaces;
+using Itedoro.Data.Repositories.RefreshToken.Interfaces;
 
 namespace Itedoro.Business.Services.AuthServices.LoginService;
 public class LoginManager(
     IPasswordHasher<User> passwordHasher,
     ITokenService tokenManager,
-    ItedoroDbContext dbContext,
+    IAuthRepository repository,
+    IRefreshTokenRepository refreshTokenRepository,
     IEnumerable<ILoginStrategy> strategies,
     IConfiguration config
 ) : ILoginService
@@ -30,12 +32,11 @@ public class LoginManager(
         {
             return Result<AuthResponse>.Failure("Wrong password.");
         }
-
         if (verificationResult == PasswordVerificationResult.SuccessRehashNeeded)
         {
             var rehashedPassword = passwordHasher.HashPassword(user, request.Password);
             user.UpdatePasswordHash(rehashedPassword);
-            await dbContext.SaveChangesAsync();
+            await repository.SaveChangesAsync();
         }
 
         var (refreshTokenEntity, rawRefreshToken) = tokenManager.CreateRefreshToken(user.Id);
@@ -44,9 +45,8 @@ public class LoginManager(
         //Direkt alınabilir.
         var expireMinutes = config.GetValue<int>("AppSettings:ExpireMinutes");
         var expiresAt = DateTime.UtcNow.AddMinutes(expireMinutes);
-        
-        dbContext.RefreshTokens.Add(refreshTokenEntity);
-        await dbContext.SaveChangesAsync();
+        await refreshTokenRepository.AddAsync(refreshTokenEntity);
+        await refreshTokenRepository.SaveAsync();
 
         return Result<AuthResponse>.Success(new AuthResponse(
             AccessToken: accessToken,

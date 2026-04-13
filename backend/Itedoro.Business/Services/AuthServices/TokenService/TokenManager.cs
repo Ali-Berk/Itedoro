@@ -3,28 +3,27 @@ using Itedoro.Data;
 using System.Security.Claims;
 using Itedoro.Data.Entities.Users;
 using System.Security.Cryptography;
-using Microsoft.EntityFrameworkCore;
 using Itedoro.Business.Shared.Result;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.Extensions.Configuration;
-using Itedoro.Business.Services.TokenService.Helpers;
+using Itedoro.Business.Services.AuthServices.TokenService.Helpers;
+using Itedoro.Data.Repositories.RefreshToken.Interfaces;
+
 namespace Itedoro.Business.Services.AuthServices.TokenService;
 
 public class TokenManager : ITokenService
 {
-    private readonly ItedoroDbContext context;
-    private readonly IConfiguration config;
+    private readonly IRefreshTokenRepository _refreshTokenRepository;
     private readonly SymmetricSecurityKey _key;
     private readonly string _issuer;
     private readonly string _audience;
     private readonly int _accessTokenExpiresMinutes;
     private readonly int _refreshTokenExpiresDays;
 
-    public TokenManager(ItedoroDbContext _context, IConfiguration _config)
+    public TokenManager(IConfiguration config, IRefreshTokenRepository refreshTokenRepository)
     {
-        context = _context;
-        config = _config;
+        _refreshTokenRepository = refreshTokenRepository;
         
         var tokenKey = config.GetValue<string>("AppSettings:Token") 
                        ?? throw new Exception("Token key not found in settings");
@@ -42,7 +41,7 @@ public class TokenManager : ITokenService
         {
             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new Claim(ClaimTypes.Name, user.Username),
-            new Claim(ClaimTypes.Role, user.Role?.Name ?? "User"),
+            new Claim(ClaimTypes.Role, user.Role.Name),
         };
 
         var credentials = new SigningCredentials(_key, SecurityAlgorithms.HmacSha512);
@@ -73,9 +72,8 @@ public class TokenManager : ITokenService
     public async Task<Result<string>> RefreshAsync(string refreshToken)
     {
         var hashedToken = Sha256Hasher.ComputeHash(refreshToken);
-        var exist = await context.RefreshTokens
-            .Include(t => t.User).Include(t => t.User.Role)
-            .FirstOrDefaultAsync(t => t.Token == hashedToken);
+        var exist = await _refreshTokenRepository.GetByTokenAsync(hashedToken);
+
         if (exist == null || exist.IsExpired)
         {
             return Result<string>.Failure("Invalid Refresh Token.");
@@ -83,7 +81,7 @@ public class TokenManager : ITokenService
         exist.Revoke();
         
         var accessToken = GenerateAccessToken(exist.User);
-        await context.SaveChangesAsync();
+        await _refreshTokenRepository.SaveAsync();
         return Result<string>.Success(accessToken);
     }
 }

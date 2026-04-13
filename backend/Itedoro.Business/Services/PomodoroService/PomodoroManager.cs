@@ -8,6 +8,7 @@ using Itedoro.Business.Services.PomodoroService.Mappers;
 using Itedoro.Business.Services.PomodoroService.Interfaces;
 using Itedoro.Business.Services.PomodoroService.Dtos.Responses;
 using Itedoro.Data.Entities.PomodoroSessions.Enums;
+using Microsoft.EntityFrameworkCore;
 
 namespace Itedoro.Business.Services.PomodoroService;
 
@@ -33,7 +34,7 @@ public class PomodoroManager(
         {
             newSession.ChildSessions.Add(new ChildSession(newSession.Id, plan.Duration, plan.Type, plan.Order));
         }
-
+        
         await repository.AddAsync(newSession);
         await repository.SaveAsync();        
         return Result<CreatePomodoroResponse>.Success(newSession.CreateResponseMapper());
