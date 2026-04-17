@@ -1,19 +1,20 @@
 using Itedoro.Domain.Exceptions;
-
+using Itedoro.Domain.Entities.Users;
 namespace Itedoro.Domain.Entities.WeeklyPlans;
 
 public class PlanItem
 {
     public Guid Id { get; init; }
     public Guid UserId { get; private init; }
-    public string Title { get; private set; } = null!;
+    public string Title { get; private set; }
     public DateTime StartDate { get; private set; }
     public DateTime EndDate { get; private set; }
     public DateTime UpdatedAt { get; private set; }
     public DateTime CreatedAt { get; private init; }
-    public string ColorCode { get; private set; } = null!;
+    public string ColorCode { get; private set; }
     public string? Note { get; private set; }
     public bool IsCompleted { get; private set; }
+    public virtual User User { get; init; } = null!;
 
     public PlanItem(
         Guid userId,

@@ -7,9 +7,9 @@ namespace Itedoro.Domain.Entities.Users;
 public class User
 {
     public Guid Id { get; init; }
-    public string Username { get; private set; } = null!;
-    public string Email { get; private set; } = null!;
-    public string PasswordHash { get; private set; } = null!;
+    public string Username { get; private set; }
+    public string Email { get; private set; }
+    public string PasswordHash { get; private set; }
     public string? Name { get; private set; }
     public string? Surname { get; private set; }
 

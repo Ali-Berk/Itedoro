@@ -6,31 +6,32 @@ namespace Itedoro.Persistence.Configurations
 {
     public class UserConfiguration : IEntityTypeConfiguration<User>
     {
-        public void Configure(EntityTypeBuilder<User> entity)
+        public void Configure(EntityTypeBuilder<User> builder)
         {
-            entity.Property(u => u.Username)
-            .HasMaxLength(25);
+            builder.ToTable("Users");
+            builder.HasKey(u => u.Id);
+            builder.HasQueryFilter(u => !u.IsDeleted);
+            builder.Property(u => u.Username)
+                .IsRequired()
+                .HasMaxLength(25);
+            builder.Property(u => u.Email)
+                .IsRequired()
+                .HasMaxLength(255);
+            builder.Property(u => u.PasswordHash)
+                .IsRequired()
+                .HasMaxLength(256);
+            builder.Property(u => u.Name)
+                .IsRequired(false)
+                .HasMaxLength(50);
+            builder.HasIndex(u => u.Username)
+                .IsUnique();
+            builder.HasIndex(u => u.Email)
+                .IsUnique();
 
-            entity.Property(u => u.Name)
-            .HasMaxLength(25);
-
-            entity.Property(u => u.Email)
-            .HasMaxLength(255)
-            .IsRequired();
-
-            entity.HasIndex(u => u.Email)
-            .IsUnique();
-
-            entity.HasOne(u => u.Role)
-            .WithMany(r => r.Users)
-            .HasForeignKey(u => u.RoleId);
-
-            entity.Property(u => u.Surname)
-            .HasMaxLength(25);
-
-            entity.Property(u => u.PasswordHash)
-            .IsRequired();
-
+            builder.HasOne(u => u.Role)
+                .WithMany(r => r.Users)
+                .HasForeignKey(u => u.RoleId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }
