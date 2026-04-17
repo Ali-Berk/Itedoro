@@ -2,4 +2,7 @@
   <Project Path="Itedoro.Api/Itedoro.Api.csproj" />
   <Project Path="Itedoro.Business/Itedoro.Business.csproj" />
   <Project Path="Itedoro.Data/Itedoro.Data.csproj" />
+  <Project Path="Itedoro.Domain/Itedoro.Domain.csproj" />
+  <Project Path="Itedoro.Application/Itedoro.Application.csproj" />
+  <Project Path="Itedoro.Persistence/Itedoro.Persistence.csproj" />
 </Solution>

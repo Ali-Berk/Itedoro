@@ -1,10 +1,10 @@
 using Itedoro.Api.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using Itedoro.Data.Shared;
-using Itedoro.Business.Services.WeeklyPlanService.Interfaces;
-using Itedoro.Business.Services.WeeklyPlanService.Dtos.Requests;
-using Itedoro.Business.Services.WeeklyPlanService.Dtos.Responses;
+using Itedoro.Application.Common.Shared.Results;
+using Itedoro.Application.Services.WeeklyPlanService.Interfaces;
+using Itedoro.Application.Services.WeeklyPlanService.Dtos.Requests;
+using Itedoro.Application.Services.WeeklyPlanService.Dtos.Responses;
 
 namespace Itedoro.Api.Controllers;
 
@@ -33,7 +33,7 @@ IWeeklyPlanAuthorizationService weeklyPlanAuthorizationService
      {
          if (!User.TryGetUserId(out var userId))
              return Unauthorized();
-         if (await weeklyPlanAuthorizationService.IsAuthorized(userId, updatePlanRequest.Id))
+         if (!await weeklyPlanAuthorizationService.IsAuthorized(userId, updatePlanRequest.Id))
          {
              return Forbid();
          }
@@ -54,11 +54,11 @@ IWeeklyPlanAuthorizationService weeklyPlanAuthorizationService
          {
              return Unauthorized();
          }
-         if (await weeklyPlanAuthorizationService.IsAuthorized(userId, planId))
+         if (!await weeklyPlanAuthorizationService.IsAuthorized(userId, planId))
          {
              return Forbid();
          }
-         var result = await weeklyPlanManager.UpdateStatus(planId);
+         var result = await weeklyPlanManager.UpdateStatus(userId, planId);
          return Ok(result);
      }
      
@@ -81,7 +81,7 @@ IWeeklyPlanAuthorizationService weeklyPlanAuthorizationService
      {
          if (!User.TryGetUserId(out var userId))
              return Unauthorized();
-         if (await weeklyPlanAuthorizationService.IsAuthorized(userId, planItemId))
+         if (!await weeklyPlanAuthorizationService.IsAuthorized(userId, planItemId))
          {
              return Forbid();
          }
@@ -101,6 +101,18 @@ IWeeklyPlanAuthorizationService weeklyPlanAuthorizationService
              return Unauthorized();
 
          var result = await weeklyPlanManager.GetAllOverduePlans(userId, referenceDate, cancellationToken);
+         return Ok(result);
+     }
+
+     [HttpGet("upcoming")]
+     [ProducesResponseType(typeof(List<GetUpcomingPlansResponse>), StatusCodes.Status200OK)]
+     public async Task<IActionResult> GetUpcomingPlans([FromQuery] DateTime startDate, [FromQuery] DateTime endDate,
+         CancellationToken cancellationToken)
+     {
+         if (!User.TryGetUserId(out var userId))
+             return Unauthorized();
+
+         var result = await weeklyPlanManager.GetAllUpcomingPlans(userId, startDate, endDate, cancellationToken);
          return Ok(result);
      }
      
