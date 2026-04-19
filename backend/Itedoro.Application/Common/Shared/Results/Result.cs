@@ -1,4 +1,4 @@
-namespace Itedoro.Application.Common.Shared.Result;
+namespace Itedoro.Application.Common.Shared.Results;
 
 public class Result
 {

@@ -1,4 +1,4 @@
-using Itedoro.Application.Common.Shared.Result;
+using Itedoro.Application.Common.Shared.Results;
 using Itedoro.Domain.Entities.RefreshTokens;
 using Itedoro.Domain.Entities.Users;
 

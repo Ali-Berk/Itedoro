@@ -1,6 +1,6 @@
 using Itedoro.Domain.Entities.Users;
 using Microsoft.AspNetCore.Identity;
-using Itedoro.Application.Common.Shared.Result;
+using Itedoro.Application.Common.Shared.Results;
 using Microsoft.Extensions.Configuration;
 using Itedoro.Application.Services.AuthServices.LoginService.Interfaces;
 using Itedoro.Application.Services.AuthServices.TokenService.Interfaces;

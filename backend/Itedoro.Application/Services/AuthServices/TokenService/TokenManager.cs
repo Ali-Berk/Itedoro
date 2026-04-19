@@ -3,7 +3,7 @@ using System.Security.Claims;
 using Itedoro.Domain.Entities.RefreshTokens;
 using Itedoro.Domain.Entities.Users;
 using System.Security.Cryptography;
-using Itedoro.Application.Common.Shared.Result;
+using Itedoro.Application.Common.Shared.Results;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.Extensions.Configuration;

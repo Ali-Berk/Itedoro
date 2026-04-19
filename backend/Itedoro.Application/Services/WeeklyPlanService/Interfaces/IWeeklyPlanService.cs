@@ -1,4 +1,3 @@
-using Itedoro.Application.Common.Shared.Result;
 using Itedoro.Application.Common.Shared.Results;
 using Itedoro.Application.Services.WeeklyPlanService.Dtos.Requests;
 using Itedoro.Application.Services.WeeklyPlanService.Dtos.Responses;

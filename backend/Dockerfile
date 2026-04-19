@@ -5,20 +5,17 @@ WORKDIR /app
 EXPOSE 8080
 EXPOSE 8081
 
-# İnşa katmanı (Build)
 FROM mcr.microsoft.com/dotnet/sdk:10.0.103 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 
-# Proje dosyalarını kendi katman isimlendirmene (API, Business, Data) göre kopyala
 COPY ["Itedoro.Api/Itedoro.Api.csproj", "src/Itedoro.Api/"]
-COPY ["Itedoro.Business/Itedoro.Business.csproj", "src/Itedoro.Business/"]
-COPY ["Itedoro.Data/Itedoro.Data.csproj", "src/Itedoro.Data/"]
+COPY ["Itedoro.Application/Itedoro.Application.csproj", "src/Itedoro.Application/"]
+COPY ["Itedoro.Domain/Itedoro.Domain.csproj", "src/Itedoro.Domain/"]
+COPY ["Itedoro.Persistence/Itedoro.Persistence.csproj", "src/Itedoro.Persistence/"]
 
-# Restore işlemi (API katmanı üzerinden)
 RUN dotnet restore "./src/Itedoro.Api/Itedoro.Api.csproj"
 
-# Kalan tüm dosyaları kopyala
 COPY . .
 WORKDIR "/src/Itedoro.Api"
 

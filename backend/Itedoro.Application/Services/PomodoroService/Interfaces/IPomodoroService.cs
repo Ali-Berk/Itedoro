@@ -1,6 +1,6 @@
 using Itedoro.Application.Services.PomodoroService.Dtos.Requests;
 using Itedoro.Application.Services.PomodoroService.Dtos.Responses;
-using Itedoro.Application.Common.Shared.Result;
+using Itedoro.Application.Common.Shared.Results;
 using Itedoro.Application.Common.Models;
 
 namespace Itedoro.Application.Services.PomodoroService.Interfaces;

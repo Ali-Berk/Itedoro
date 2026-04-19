@@ -1,4 +1,4 @@
-using Itedoro.Application.Common.Shared.Result;
+using Itedoro.Application.Common.Shared.Results;
 using Itedoro.Application.Services.Utils;
 using Itedoro.Domain.Entities.PomodoroSessions;
 using Itedoro.Application.Repositories;
