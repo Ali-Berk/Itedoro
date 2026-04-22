@@ -4,13 +4,13 @@ using Itedoro.Domain.Enums;
 namespace Itedoro.Application.Services.Utils;
 public class PomodoroPlanGenerator
 {
-    //TODO: Son child Mola veya Uzun Mola olamaz.
     public List<(int Duration, PomodoroType Type, int Order)> Generate(CreatePomodoroRequest prefs)
     {
         var planList = new List<(int Duration, PomodoroType Type, int Order)>();
         int remainingMinutes = prefs.TotalMinutes;
         int workSessionCount = 0;
         int order = 0;
+
         while (remainingMinutes > 0)
         {
             order++;
@@ -26,6 +26,10 @@ public class PomodoroPlanGenerator
             PomodoroType breakType = isLongBreak ? PomodoroType.LongBreak : PomodoroType.ShortBreak;
 
             int currentBreak = Math.Min(remainingMinutes, breakLimit);
+
+            if (remainingMinutes - currentBreak <= 0)
+                break;
+
             order++;
             planList.Add((currentBreak, breakType, order));
             remainingMinutes -= currentBreak;
@@ -33,4 +37,7 @@ public class PomodoroPlanGenerator
 
         return planList;
     }
+    
+
 }
+
