@@ -19,6 +19,6 @@ namespace Itedoro.Application.Services.UserServices.Interfaces
 
         Task<Result> UpdateUserRoleAsync(Guid userId, UpdateRoleRequest request);
 
-        Task<Result<UpdateUserResponse>> UpdateUserAsync(UpdateUserRequest request);
+        Task<Result<UpdateUserResponse>> UpdateUserAsync(Guid userId, UpdateUserRequest request);
     }
 }

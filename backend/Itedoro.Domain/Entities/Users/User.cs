@@ -16,7 +16,6 @@ public class User
     public DateTime CreatedAt { get; private init; }
     public DateTime? UpdatedAt { get; private set; }
     public bool IsDeleted { get; private set; }
-
     public Guid RoleId { get; private set; }
     public virtual Role Role { get; private set; } = null!;
 
@@ -43,15 +42,13 @@ public class User
         UpdatedAt = updatedAt;
         IsDeleted = isDeleted;
     }
-
     public void UpdateProfile(string? name, string? surname)
     {
         EnsureActive();
-        Name = NormalizeOptional(name);
-        Surname = NormalizeOptional(surname);
+        Name = string.IsNullOrWhiteSpace(name) ? Name : NormalizeOptional(name);
+        Surname = string.IsNullOrWhiteSpace(surname) ? Surname : NormalizeOptional(surname);
         Touch();
     }
-
     public void UpdatePasswordHash(string newPasswordHash)
     {
         EnsureActive();

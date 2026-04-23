@@ -13,4 +13,4 @@ public record GetMeResponse(
     int WeeklyStudyInMinutes,
     int TotalCompletedPomodoros,
     int TotalStudyTimeInMinutes
-    );
+);
