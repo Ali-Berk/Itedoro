@@ -154,6 +154,64 @@ namespace Itedoro.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Itedoro.Domain.Entities.UserStats.UserTotalStat", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("TotalCompletedPomodoros")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TotalStudyTimeInMinutes")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("UserId");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("UserTotalStats", (string)null);
+                });
+
+            modelBuilder.Entity("Itedoro.Domain.Entities.UserStats.UserWeekStat", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("WeekId")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<int>("CompletedPlans")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("CompletedPomodoros")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("PlannedPlans")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("PlannedPomodoros")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("WeeklyStudyTimeInMinutes")
+                        .HasColumnType("integer");
+
+                    b.HasKey("UserId", "WeekId");
+
+                    b.HasIndex("UserId", "WeekId")
+                        .IsUnique();
+
+                    b.ToTable("UserWeekStats", (string)null);
+                });
+
             modelBuilder.Entity("Itedoro.Domain.Entities.Users.User", b =>
                 {
                     b.Property<Guid>("Id")
