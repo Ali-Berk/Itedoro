@@ -1,8 +1,11 @@
 using Itedoro.Application.Repositories;
+using Itedoro.Persistence.Repositories;
 using Itedoro.Persistence.Repositories.Auth;
 using Itedoro.Persistence.Repositories.Pomodoro;
 using Itedoro.Persistence.Repositories.RefreshToken;
 using Itedoro.Persistence.Repositories.Repository;
+using Itedoro.Persistence.Repositories.UserRepositories;
+using Itedoro.Persistence.Repositories.UserStatRepositories;
 using Itedoro.Persistence.Repositories.WeeklyPlan;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -18,6 +21,14 @@ public static class RepositoriesDependencyInjection
         repositories.AddScoped<IWeeklyPlanRepository, WeeklyPlanRepository>();
         repositories.AddScoped<IAuthRepository, AuthRepository>();
         repositories.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+        repositories.AddScoped<IUserRepository, UserRepository>();
+        repositories.AddScoped<IRoleRepository, RoleRepository>();
+        
+        repositories.AddScoped<IUserWeekStatRepository, UserWeekStatRepository>();
+        repositories.AddScoped<IUserTotalStatRepository, UserTotalStatRepository>();
+        
+        
+        
         return repositories;    
     }
 }

@@ -16,7 +16,7 @@ public class UserController(
     [Authorize]
     [HttpGet("me")]
     [ProducesResponseType(typeof(GetMeResponse), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetMe(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetMeAsync(CancellationToken cancellationToken)
     {
         if (!User.TryGetUserId(out Guid userId))
             return Unauthorized();
@@ -33,7 +33,7 @@ public class UserController(
     [Authorize]
     [HttpPatch("me")]
     [ProducesResponseType(typeof(GetMeResponse), StatusCodes.Status200OK)]
-    public async Task<IActionResult> PatchMe([FromBody] UpdateMeRequest request)
+    public async Task<IActionResult> UpdateMeAsync([FromBody] UpdateMeRequest request)
     {
         if (!User.TryGetUserId(out Guid userId))
             return Unauthorized();
@@ -49,7 +49,7 @@ public class UserController(
     [Authorize]
     [HttpPatch("me/password")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<IActionResult> PatchPassword([FromBody] UpdatePasswordRequest request)
+    public async Task<IActionResult> UpdatePasswordAsync([FromBody] UpdatePasswordRequest request)
     {
         if (!User.TryGetUserId(out Guid userId))
             return Unauthorized();
@@ -65,7 +65,7 @@ public class UserController(
     [Authorize]
     [HttpDelete("me")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<IActionResult> DeleteMe()
+    public async Task<IActionResult> DeleteMeAsync()
     {
         if (!User.TryGetUserId(out Guid userId))
             return Unauthorized();
@@ -81,7 +81,7 @@ public class UserController(
     [AllowAnonymous]
     [HttpGet("{userName}")]
     [ProducesResponseType(typeof(GetUserResponse), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetUser([FromRoute] string userName, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetUserAsync([FromRoute] string userName, CancellationToken cancellationToken)
     {
         var result = await userService.GetUserAsync(userName, cancellationToken);
         if (result.IsFailure)
@@ -96,7 +96,7 @@ public class UserController(
     [Authorize(Roles = "Admin")]
     [HttpDelete("{userId}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<IActionResult> DeleteUser([FromRoute] Guid userId)
+    public async Task<IActionResult> DeleteUserAsync([FromRoute] Guid userId)
     {
         var result = await userService.HardDeleteUserAsync(userId);
         if (result.IsFailure)
@@ -110,7 +110,7 @@ public class UserController(
     [Authorize(Roles = "Admin")]
     [HttpPatch("{userId}/role")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<IActionResult> PatchUsersRole([FromRoute] Guid userId,[FromBody] UpdateRoleRequest role)
+    public async Task<IActionResult> UpdateUserRoleAsync([FromRoute] Guid userId,[FromBody] UpdateRoleRequest role)
     {
         var result = await userService.UpdateUserRoleAsync(userId, role);
         if (result.IsFailure)
@@ -124,10 +124,10 @@ public class UserController(
 
     [Authorize(Roles = "Admin")]
     [HttpPatch("{userId}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<IActionResult> PatchUser([FromRoute] Guid userId, [FromBody] UpdateUserRequest request)
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> UpdateUserAsync([FromRoute] Guid userId, [FromBody] UpdateUserRequest request)
     {
-        var result = await userService.UpdateUserAsync(request);
+        var result = await userService.UpdateUserAsync(userId, request);
         if (result.IsFailure)
         {
             return BadRequest();

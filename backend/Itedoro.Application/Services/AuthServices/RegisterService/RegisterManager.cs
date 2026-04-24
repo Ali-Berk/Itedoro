@@ -29,12 +29,6 @@ public class RegisterManager(
         user.UpdatePasswordHash(hashedPassword);
 
         await repository.AddUserAsync(user);
-
-        var (refreshToken, rawRefreshToken) = tokenService.CreateRefreshToken(user.Id);
-        var accessToken = tokenService.GenerateAccessToken(user);
-        
-        //Raw ve access fronta yollanacaktı. değiştirilecek.
-        await tokenRepository.AddAsync(refreshToken);
         await repository.SaveChangesAsync();
         return Result.Success();
     }
