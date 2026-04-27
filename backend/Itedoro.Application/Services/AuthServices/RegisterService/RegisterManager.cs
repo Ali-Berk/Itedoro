@@ -2,16 +2,13 @@ using Microsoft.AspNetCore.Identity;
 using Itedoro.Domain.Entities.Users;
 using Itedoro.Application.Common.Shared.Results;
 using Itedoro.Application.Services.AuthServices.RegisterService.Interfaces;
-using Itedoro.Application.Services.AuthServices.TokenService.Interfaces;
 using Itedoro.Application.Services.AuthServices.Dtos.Requests;
 using Itedoro.Application.Repositories;
 
 namespace Itedoro.Application.Services.AuthServices.RegisterService;
 public class RegisterManager(
     IAuthRepository repository,
-    IRefreshTokenRepository tokenRepository,
-    IPasswordHasher<User> passwordHasher,
-    ITokenService tokenService
+    IPasswordHasher<User> passwordHasher
 ) : IRegisterService
 {
 
@@ -23,7 +20,7 @@ public class RegisterManager(
             return Result.Failure("User already exists.");
         }
         
-        var user = new User(request.Username, request.Email, "placeholder");
+        var user = new User(request.Username, request.Email, "placeholder", request.Name, request.Surname);
         
         string hashedPassword = passwordHasher.HashPassword(user, request.Password);
         user.UpdatePasswordHash(hashedPassword);

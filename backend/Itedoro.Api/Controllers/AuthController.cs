@@ -37,7 +37,7 @@ public class AuthController(
         }
         return BadRequest(result.Errors);
     }
-
+    //TODO: Contract oluştur.
     [HttpPost("refresh")]
     public async Task<IActionResult> Refresh([FromBody] string refreshToken)
     {
@@ -48,4 +48,6 @@ public class AuthController(
         }
         return BadRequest(result.Errors);
     }
+    
+    //TODO: Lougout ekle
 }

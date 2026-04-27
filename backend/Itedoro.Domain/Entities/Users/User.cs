@@ -23,12 +23,12 @@ public class User
         string username,
         string email,
         string passwordHash,
+        string? name = null,
+        string? surname = null,
         Guid id = default,
         Guid roleId = default,
         DateTime createdAt = default,
         DateTime? updatedAt = null,
-        string? name = null,
-        string? surname = null,
         bool isDeleted = false)
     {
         Id = id == Guid.Empty ? Guid.NewGuid() : id;
