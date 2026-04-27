@@ -9,7 +9,10 @@ public class RefreshTokenRepository(ItedoroDbContext context) : Repository<Itedo
 
     public async Task<Itedoro.Domain.Entities.RefreshTokens.RefreshToken?> GetByTokenAsync(string token)
     {
-        return await Context.RefreshTokens.FirstOrDefaultAsync(rt => rt.Token == token);
+        return await Context.RefreshTokens
+            .Include(rt => rt.User)
+            .Include(rt => rt.User.Role)
+            .FirstOrDefaultAsync(rt => rt.Token == token);
     }
 
     public void Update(Itedoro.Domain.Entities.RefreshTokens.RefreshToken refreshToken)

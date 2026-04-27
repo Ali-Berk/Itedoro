@@ -16,16 +16,16 @@ public class WeeklyPlanRepository(ItedoroDbContext context) : Repository<PlanIte
 
     public async Task<(List<PlanItem> Plans, bool HasMoreData)> GetPlansBetweenDatesAsync(Guid userId, DateTime startDate, DateTime endDate, int page, int pageSize)
     {
-        var query = Context.PlanItems
+        var baseQuery = Context.PlanItems
             .AsNoTracking()
             .Where(p => p.UserId == userId && p.EndDate >= startDate && p.StartDate <= endDate);
-        var totalCount = await query.CountAsync();
+        
+        var totalCount = await baseQuery.CountAsync();
+        
         var hasMoreData = totalCount > (page * pageSize);
         
-        var items = await Context.PlanItems
-            .AsNoTracking()
-            .Where(p => p.UserId == userId && p.EndDate >= startDate && p.StartDate <= endDate)
-            .OrderBy(p => p.StartDate)
+        var items = await baseQuery
+            .OrderBy(p=> p.StartDate)
             .Skip((page - 1)*pageSize)
             .Take(pageSize)
             .ToListAsync();
