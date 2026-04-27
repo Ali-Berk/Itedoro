@@ -49,7 +49,7 @@ public static class ApiDependencyInjection
                     return Task.CompletedTask;
                 }
 
-                document.Security ??= [];
+                document.Security ??= new List<OpenApiSecurityRequirement>();;
                 document.Security.Add(new OpenApiSecurityRequirement
                 {
                     [new OpenApiSecuritySchemeReference("bearer", context.Document)] = []

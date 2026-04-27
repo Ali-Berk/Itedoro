@@ -16,6 +16,9 @@ using Itedoro.Application.Services.AuthServices.RegisterService.Interfaces;
 using FluentValidation;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
 using Itedoro.Application.Validators;
+using Itedoro.Domain.Entities.Users;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Itedoro.Application;
 
@@ -43,7 +46,7 @@ public static class ApplicationDependencyInjection
         
         //Utils / Helpers
         services.AddSingleton<PomodoroPlanGenerator>();
-        
+        services.AddScoped<IPasswordHasher<User>, PasswordHasher<User> > ();
         return services;    
     }
 

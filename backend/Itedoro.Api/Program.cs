@@ -1,7 +1,5 @@
 using Itedoro.Persistence;
 using Itedoro.Application;
-using Itedoro.Domain.Entities.Users;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Itedoro.Api.DependencyInjection;
 using Itedoro.Persistence.DependencyInjection;
@@ -18,7 +16,6 @@ builder.Services.AddRepositories();
 builder.Services.AddApplicationServices();
 builder.Services.AddApplicationValidators();
 builder.Services.AddAutoMapper(cfg => cfg.AddMaps(typeof(LoginManager).Assembly));
-builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
 var app = builder.Build();
 
