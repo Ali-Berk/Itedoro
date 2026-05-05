@@ -7,4 +7,5 @@ namespace Itedoro.Application.Services.AuthServices.LoginService.Interfaces;
 public interface ILoginService
 {
     Task<Result<AuthResponse>> LoginAsync(LoginRequest request);
+    Task<Result> LogoutAsync();
 }

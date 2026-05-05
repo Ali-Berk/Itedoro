@@ -43,7 +43,7 @@ public class LoginManager(
         var accessToken = tokenManager.GenerateAccessToken(user); 
         
         //Direkt alınabilir.
-        var expireMinutes = config.GetValue<int>("AppSettings:ExpireMinutes");
+        var expireMinutes = config.GetValue<int>("JwtSettings:AccessTokenExpireMinutes");
         var expiresAt = DateTime.UtcNow.AddMinutes(expireMinutes);
         await refreshTokenRepository.AddAsync(refreshTokenEntity);
         await refreshTokenRepository.SaveAsync();
@@ -54,5 +54,10 @@ public class LoginManager(
             ExpiresAt: expiresAt,
             UserId: user.Id,
             UserName: user.Username));
+    }
+
+    public Task<Result> LogoutAsync()
+    {
+        throw new NotImplementedException();
     }
 }

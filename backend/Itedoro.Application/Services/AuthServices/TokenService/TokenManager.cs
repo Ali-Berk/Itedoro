@@ -30,10 +30,10 @@ public class TokenManager : ITokenService
                        ?? throw new Exception("Token key not found in settings");
             
         _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(tokenKey));
-        _issuer = config.GetValue<string>("AppSettings:Issuer") ?? "";
-        _audience = config.GetValue<string>("AppSettings:Audience") ?? "";
-        _accessTokenExpiresMinutes = config.GetValue<int>("AppSettings:ExpireMinutes");
-        _refreshTokenExpiresDays = config.GetValue<int>("AppSettings:ExpireDays");
+        _issuer = config.GetValue<string>("JwtSettings:Issuer") ?? "";
+        _audience = config.GetValue<string>("JwtSettings:Audience") ?? "";
+        _accessTokenExpiresMinutes = config.GetValue<int>("JwtSettings:AccessTokenExpireMinutes");
+        _refreshTokenExpiresDays = config.GetValue<int>("JwtSettings:RefreshTokenExpireDays");
     }
 
     public string GenerateAccessToken(User user)

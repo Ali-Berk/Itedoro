@@ -26,14 +26,26 @@ public static class ApiDependencyInjection
                 ValidateAudience = true,
                 ValidateLifetime = true,
                 ValidateIssuerSigningKey = true,
-                ValidIssuer = configuration["AppSettings:Issuer"],
-                ValidAudience = configuration["AppSettings:Audience"],
+                ValidIssuer = configuration["JwtSettings:Issuer"],
+                ValidAudience = configuration["JwtSettings:Audience"],
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
                     configuration["AppSettings:Token"] ?? throw new InvalidOperationException("Token key not found in settings.")
                 ))
             };
         });
 
+        //Cors
+        services.AddCors(options =>
+        {
+            options.AddPolicy("CorsPolicy", builder =>
+            {
+                builder.WithOrigins(configuration["AppSettings:ClientUrl"] ?? throw new InvalidOperationException("ClientUrl not found in settings."))
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .AllowCredentials();
+            });
+        });
+        
         //Swagger / OpenApi
         services.AddOpenApi(options =>
         {
@@ -49,7 +61,7 @@ public static class ApiDependencyInjection
                     return Task.CompletedTask;
                 }
 
-                document.Security ??= new List<OpenApiSecurityRequirement>();;
+                document.Security ??= new List<OpenApiSecurityRequirement>();
                 document.Security.Add(new OpenApiSecurityRequirement
                 {
                     [new OpenApiSecuritySchemeReference("bearer", context.Document)] = []

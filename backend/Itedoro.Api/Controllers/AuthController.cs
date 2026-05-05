@@ -1,9 +1,11 @@
+using Itedoro.Api.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Itedoro.Application.Services.AuthServices.Dtos.Requests;
 using Itedoro.Application.Services.AuthServices.Dtos.Responses;
 using Itedoro.Application.Services.AuthServices.LoginService.Interfaces;
 using Itedoro.Application.Services.AuthServices.RegisterService.Interfaces;
 using Itedoro.Application.Services.AuthServices.TokenService.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Itedoro.Api.Controllers;
 
@@ -12,7 +14,8 @@ namespace Itedoro.Api.Controllers;
 public class AuthController(
     ITokenService tokenService,
     ILoginService loginService,
-    IRegisterService registerService
+    IRegisterService registerService,
+    IConfiguration configuration
 ) : ControllerBase
 {
     [HttpPost("register")]
@@ -31,23 +34,41 @@ public class AuthController(
     public async Task<ActionResult> Login([FromBody] LoginRequest request)
     {
         var result = await loginService.LoginAsync(request);
-        if(result.IsSuccess)
+        if(result.IsFailure)
         {
-            return Ok(result.Value);
+            return BadRequest(result.Errors);
         }
-        return BadRequest(result.Errors);
-    }
-    //TODO: Contract oluştur.
-    [HttpPost("refresh")]
-    public async Task<IActionResult> Refresh([FromBody] string refreshToken)
-    {
-        var result = await tokenService.RefreshAsync(refreshToken);
-        if (result.IsSuccess)
-        {
-            return Ok(result.Value);
-        }
-        return BadRequest(result.Errors);
+        
+        Response.SetRefreshTokenCookie(result.Value!.RefreshToken, configuration);
+        return Ok(result.Value);
     }
     
-    //TODO: Lougout ekle
+    [HttpPost("refresh")]
+    public async Task<IActionResult> Refresh()
+    {
+        if (!Request.Cookies.TryGetValue("refreshToken", out var refreshToken))
+        {
+            return Unauthorized();
+        }
+        var result = await tokenService.RefreshAsync(refreshToken);
+        if (result.IsFailure)
+        {
+            return BadRequest(result.Errors);
+        }
+        return Ok(result.Value);
+    }
+    
+    [Authorize]
+    [HttpDelete("logout")]
+    public async Task<IActionResult> Logout()
+    {
+        var result = await loginService.LogoutAsync();
+        if (result.IsFailure)
+        {
+            return BadRequest();
+        }
+
+        Response.DeleteRefreshTokenCookie();
+        return Ok();
+    }
 }
