@@ -12,5 +12,5 @@ public interface IPomodoroRepository : IRepository<ParentSession>
     Task<ParentSession?> GetUserSessionWithChildrenAsync(Guid userId, Guid parentId);
     Task<ParentSession?> FindSkippableBreakAsync(Guid parentId, Guid childId);
     Task<bool> DeleteSessionAsync(Guid parentId);
-    Task<bool> IsUserTrue(Guid userId, Guid parentId);
+    Task<bool> IsOwnedByUserAsync(Guid userId, Guid parentId);
 }

@@ -1,4 +1,5 @@
 using Itedoro.Api.Extensions;
+using Itedoro.Api.Services.CurrentUser;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Itedoro.Application.Services.PomodoroService.Dtos.Requests;
@@ -13,7 +14,8 @@ namespace Itedoro.Api.Controllers;
 [Route("pomodoro")]
 public class PomodoroController(
     IPomodoroService pomodoroService,
-    IPomodoroAuthorizationService pomodoroAuthService
+    IPomodoroAuthorizationService pomodoroAuthService,
+    ICurrentUserService currentUserService
 ) : ControllerBase
 {
     //WARN: frontend her child bitiminde backende istek atıp güncellemelidir.
@@ -21,8 +23,9 @@ public class PomodoroController(
     [ProducesResponseType(typeof(CreatePomodoroResponse), StatusCodes.Status200OK)]
     public async Task<IActionResult> StartPomodoro([FromBody] CreatePomodoroRequest request)
     {
-        if (!User.TryGetUserId(out Guid userId))
+        if (!currentUserService.IsAuthenticated || currentUserService.UserId == null)
             return Unauthorized();
+        var userId = currentUserService.UserId.Value;
         var result = await pomodoroService.CreateSessionAsync(userId, request);
 
         if (result.IsSuccess && result.Value is not null)
@@ -40,9 +43,10 @@ public class PomodoroController(
     [ProducesResponseType(typeof(PausePomodoroResponse), StatusCodes.Status200OK)]
     public async Task<IActionResult> Pause(Guid parentPomodoroSessionId)
     {
-        if (!User.TryGetUserId(out Guid userId))
+        if (!currentUserService.IsAuthenticated || currentUserService.UserId == null)
             return Unauthorized();
-        var canUpdate = await pomodoroAuthService.IsUserTrue(userId, parentPomodoroSessionId);
+        var userId = currentUserService.UserId.Value;
+        var canUpdate = await pomodoroAuthService.IsOwnedByUserAsync(userId, parentPomodoroSessionId);
         if (!canUpdate)
         {
             return Forbid();
@@ -59,9 +63,10 @@ public class PomodoroController(
     [ProducesResponseType(typeof(ResumePomodoroResponse), StatusCodes.Status200OK)]
     public async Task<IActionResult> Resume(Guid parentPomodoroSessionId)
     {
-        if (!User.TryGetUserId(out Guid userId))
+        if (!currentUserService.IsAuthenticated || currentUserService.UserId == null)
             return Unauthorized();
-        var canUpdate = await pomodoroAuthService.IsUserTrue(userId, parentPomodoroSessionId);
+        var userId = currentUserService.UserId.Value;
+        var canUpdate = await pomodoroAuthService.IsOwnedByUserAsync(userId, parentPomodoroSessionId);
         if (!canUpdate)
         {
             return Forbid();
@@ -78,9 +83,10 @@ public class PomodoroController(
     [ProducesResponseType(typeof(StopPomodoroResponse), StatusCodes.Status200OK)]
     public async Task<IActionResult> Stop(Guid parentPomodoroSessionId)
     {
-        if (!User.TryGetUserId(out Guid userId))
+        if (!currentUserService.IsAuthenticated || currentUserService.UserId == null)
             return Unauthorized();
-        var canUpdate = await pomodoroAuthService.IsUserTrue(userId, parentPomodoroSessionId);
+        var userId = currentUserService.UserId.Value;
+        var canUpdate = await pomodoroAuthService.IsOwnedByUserAsync(userId, parentPomodoroSessionId);
         if (!canUpdate)
         {
             return Forbid();
@@ -98,8 +104,9 @@ public class PomodoroController(
     [ProducesResponseType(typeof(PagedResult<GetPomodoroHistoryResponse>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetHistory([FromQuery] GetPomodoroHistoryRequest request)
     {
-        if (!User.TryGetUserId(out Guid userId))
+        if (!currentUserService.IsAuthenticated || currentUserService.UserId == null)
             return Unauthorized();
+        var userId = currentUserService.UserId.Value;
         var result = await pomodoroService.GetPagedSessionsAsync(userId, request);
         return Ok(result.Value);
     }
@@ -108,10 +115,11 @@ public class PomodoroController(
     [ProducesResponseType(typeof(SkipBreakResponse), StatusCodes.Status200OK)]
     public async Task<IActionResult> SkipBreak(Guid parentPomodoroSessionId, Guid childPomodoroSessionId )
     {
-        if (!User.TryGetUserId(out Guid userId))
+        if (!currentUserService.IsAuthenticated || currentUserService.UserId == null)
             return Unauthorized();
-        
-        var canUpdate = await pomodoroAuthService.IsUserTrue(userId, parentPomodoroSessionId);
+        var userId = currentUserService.UserId.Value;
+
+        var canUpdate = await pomodoroAuthService.IsOwnedByUserAsync(userId, parentPomodoroSessionId);
         if (!canUpdate)
         {
             return Forbid();
@@ -127,11 +135,12 @@ public class PomodoroController(
     [HttpDelete("{parentPomodoroSessionId:guid}")]
     public async Task<IActionResult> DeletePomodoro(Guid parentPomodoroSessionId)
     {
-        if (!User.TryGetUserId(out Guid userId))
+        if (!currentUserService.IsAuthenticated || currentUserService.UserId == null)
         {
             return Unauthorized();
         }
-        bool canDelete = await pomodoroAuthService.IsUserTrue(userId, parentPomodoroSessionId);
+        var userId = currentUserService.UserId.Value;
+        bool canDelete = await pomodoroAuthService.IsOwnedByUserAsync(userId, parentPomodoroSessionId);
         if (!canDelete)
         {
             return Forbid();

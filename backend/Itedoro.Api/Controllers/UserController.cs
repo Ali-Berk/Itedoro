@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Itedoro.Api.Extensions;
+using Itedoro.Api.Services.CurrentUser;
 using Itedoro.Application.Services.UserServices.Dtos.Requests;
 using Itedoro.Application.Services.UserServices.Dtos.Responses;
 using Itedoro.Application.Services.UserServices.Interfaces;
@@ -10,7 +11,8 @@ namespace Itedoro.Api.Controllers;
 [ApiController]
 [Route("users")]
 public class UserController(
-    IUserService userService
+    IUserService userService,
+    ICurrentUserService currentUserService
 ) : ControllerBase
 {
     [Authorize]
@@ -18,9 +20,10 @@ public class UserController(
     [ProducesResponseType(typeof(GetMeResponse), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetMeAsync(CancellationToken cancellationToken)
     {
-        if (!User.TryGetUserId(out Guid userId))
+        if (!currentUserService.IsAuthenticated || currentUserService.UserId == null)
             return Unauthorized();
 
+        var userId = currentUserService.UserId.Value;
         var result = await userService.GetMeAsync(userId, cancellationToken);
         if (result.IsFailure)
         {
@@ -35,8 +38,9 @@ public class UserController(
     [ProducesResponseType(typeof(GetMeResponse), StatusCodes.Status200OK)]
     public async Task<IActionResult> UpdateMeAsync([FromBody] UpdateMeRequest request)
     {
-        if (!User.TryGetUserId(out Guid userId))
+        if (!currentUserService.IsAuthenticated || currentUserService.UserId == null)
             return Unauthorized();
+        var userId = currentUserService.UserId.Value;
         var result = await userService.UpdateMeAsync(userId, request);
         if (result.IsFailure)
         {
@@ -51,8 +55,9 @@ public class UserController(
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> UpdatePasswordAsync([FromBody] UpdatePasswordRequest request)
     {
-        if (!User.TryGetUserId(out Guid userId))
+        if (!currentUserService.IsAuthenticated || currentUserService.UserId == null)
             return Unauthorized();
+        var userId = currentUserService.UserId.Value;
         var result = await userService.UpdatePasswordAsync(userId, request);
         if (result.IsFailure)
         {
@@ -67,8 +72,9 @@ public class UserController(
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> DeleteMeAsync()
     {
-        if (!User.TryGetUserId(out Guid userId))
+        if (!currentUserService.IsAuthenticated || currentUserService.UserId == null)
             return Unauthorized();
+        var userId = currentUserService.UserId.Value;
         var result = await userService.DeleteMeAsync(userId);
         if (result.IsFailure)
         {

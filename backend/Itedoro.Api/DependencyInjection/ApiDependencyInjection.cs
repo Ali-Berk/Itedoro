@@ -1,4 +1,5 @@
 using System.Text;
+using Itedoro.Api.Services.CurrentUser;
 using Microsoft.OpenApi;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authorization;
@@ -11,7 +12,9 @@ public static class ApiDependencyInjection
     {
         services.AddControllers();
         services.AddEndpointsApiExplorer();
-
+        services.AddHttpContextAccessor();
+        services.AddScoped<ICurrentUserService, CurrentUserService>();
+        
         //JWT Servisleri
         services.AddAuthentication(options =>
         {

@@ -67,7 +67,7 @@ public class PomodoroRepository(
         return row > 0;
     }
 
-    public async Task<bool> IsUserTrue(Guid userId, Guid parentId)
+    public async Task<bool> IsOwnedByUserAsync(Guid userId, Guid parentId)
     {
         return await Context.ParentSessions.AnyAsync(p => p.UserId == userId && p.Id == parentId);
     }
