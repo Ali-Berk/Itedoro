@@ -22,7 +22,7 @@ public class AuthRepository(ItedoroDbContext context) :IAuthRepository
         return await context.Users.AnyAsync(u => u.Username == username || u.Email == email);
     }
 
-    public async Task AddUserAsync(Domain.Entities.Users.User user)
+    public async Task AddUserAsync(User user)
     {
         await context.Users.AddAsync(user);
     }

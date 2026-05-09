@@ -6,7 +6,6 @@ namespace Itedoro.Application.Services.UserServices.Mappers;
 
 public static class UserMappingExtensions
 {
-    //TODO: İstatistikler için 2. bir tablo oluşturulacak.
     public static GetMeResponse GetMeResponseMapper(
         this User user, 
         UserWeekStat weekStat, 
