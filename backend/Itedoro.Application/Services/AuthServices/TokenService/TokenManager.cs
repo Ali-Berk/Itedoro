@@ -85,4 +85,18 @@ public class TokenManager : ITokenService
         await _refreshTokenRepository.SaveAsync();
         return Result<string>.Success(accessToken);
     }
+
+    public async Task<Result> RevokeRefreshTokenAsync(string refreshToken)
+    {
+        var hashedToken = Sha256Hasher.ComputeHash(refreshToken);
+        var exist = await _refreshTokenRepository.GetByTokenAsync(hashedToken);
+
+        if (exist != null)
+        {
+            exist.Revoke();
+            await _refreshTokenRepository.SaveAsync();
+        }
+    
+        return Result.Success();
+    }
 }

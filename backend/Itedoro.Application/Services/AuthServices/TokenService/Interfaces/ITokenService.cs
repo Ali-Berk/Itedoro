@@ -11,4 +11,6 @@ public interface ITokenService
     (RefreshToken Entity, string rawToken) CreateRefreshToken(Guid userId);
 
     Task<Result<string>> RefreshAsync(string refreshToken);
+
+    Task<Result> RevokeRefreshTokenAsync(string refreshToken);
 }

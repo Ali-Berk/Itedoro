@@ -1,3 +1,4 @@
+using System.Net;
 using Itedoro.Api.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Itedoro.Application.Services.AuthServices.Dtos.Requests;
@@ -62,13 +63,19 @@ public class AuthController(
     [HttpDelete("logout")]
     public async Task<IActionResult> Logout()
     {
-        var result = await loginService.LogoutAsync();
+        if (!Request.Cookies.TryGetValue("refreshToken", out var refreshToken))
+        {
+            return Unauthorized();
+        }
+        
+        var result = await tokenService.RevokeRefreshTokenAsync(refreshToken);
         if (result.IsFailure)
         {
             return BadRequest();
         }
-
+        
         Response.DeleteRefreshTokenCookie();
+        
         return Ok();
     }
 }
