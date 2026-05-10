@@ -1,3 +1,4 @@
+using Itedoro.Application.Common.Errors;
 using Itedoro.Domain.Entities.Users;
 using Microsoft.AspNetCore.Identity;
 using Itedoro.Application.Common.Shared.Results;
@@ -7,6 +8,7 @@ using Itedoro.Application.Services.AuthServices.TokenService.Interfaces;
 using Itedoro.Application.Services.AuthServices.Dtos.Responses;
 using Itedoro.Application.Services.AuthServices.Dtos.Requests;
 using Itedoro.Application.Repositories;
+using Itedoro.Application.Services.AuthServices.Errors;
 
 namespace Itedoro.Application.Services.AuthServices.LoginService;
 public class LoginManager(
@@ -21,17 +23,14 @@ public class LoginManager(
     public async Task<Result<AuthResponse>> LoginAsync(LoginRequest request)
     {        
         var strategy = strategies.FirstOrDefault(s => s.CanHandle(request));
-        if (strategy == null) return Result<AuthResponse>.Failure("Invalid login handle.");
+        if (strategy == null) return AuthErrors.InvalidLoginHandle;
 
         var user = await strategy.LoginAsync(request);
-        if (user == null) return Result<AuthResponse>.Failure("User not found.");
+        if (user == null) return CommonErrors.NotFound;
 
         var verificationResult = passwordHasher.VerifyHashedPassword(user, user.PasswordHash, request.Password);
 
-        if (verificationResult == PasswordVerificationResult.Failed)
-        {
-            return Result<AuthResponse>.Failure("Wrong password.");
-        }
+        if (verificationResult == PasswordVerificationResult.Failed) return AuthErrors.InvalidCredentials;
         if (verificationResult == PasswordVerificationResult.SuccessRehashNeeded)
         {
             var rehashedPassword = passwordHasher.HashPassword(user, request.Password);

@@ -18,7 +18,6 @@ using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
 using Itedoro.Application.Validators;
 using Itedoro.Domain.Entities.Users;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Itedoro.Application;
 

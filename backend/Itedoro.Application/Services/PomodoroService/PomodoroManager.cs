@@ -1,3 +1,4 @@
+using Itedoro.Application.Common.Errors;
 using Itedoro.Application.Common.Shared.Results;
 using Itedoro.Application.Services.Utils;
 using Itedoro.Domain.Entities.PomodoroSessions;
@@ -8,6 +9,8 @@ using Itedoro.Application.Services.PomodoroService.Interfaces;
 using Itedoro.Application.Services.PomodoroService.Dtos.Responses;
 using Itedoro.Domain.Enums;
 using Itedoro.Application.Common.Models;
+using Itedoro.Application.Services.PomodoroService.Errors;
+
 namespace Itedoro.Application.Services.PomodoroService;
 
 public class PomodoroManager(
@@ -41,8 +44,7 @@ public class PomodoroManager(
     public async Task<Result<PausePomodoroResponse>> PauseSessionAsync(Guid userId, Guid parentId)
     {
         var activeSession = await repository.FindActiveSessionAsync(userId);
-        if (activeSession == null || activeSession.Id != parentId)
-            return Result<PausePomodoroResponse>.Failure("There is no matching active session.");
+        if (activeSession == null || activeSession.Id != parentId) return CommonErrors.NotFound;
 
         activeSession.Pause();
 
@@ -55,7 +57,7 @@ public class PomodoroManager(
         var pausedSession = await repository.FindPausedSessionAsync(userId);
         if (pausedSession == null || pausedSession.Id != parentId)
         {
-            return Result<ResumePomodoroResponse>.Failure("There is no paused session running.");
+            return CommonErrors.NotFound;
         }
         pausedSession.Resume();
         await repository.SaveAsync();
@@ -66,10 +68,8 @@ public class PomodoroManager(
     public async Task<Result<StopPomodoroResponse>> StopSessionAsync(Guid userId, Guid parentId)
     {
         var parent = await repository.GetUserSessionWithChildrenAsync(userId, parentId);
-        if (parent == null)
-            return Result<StopPomodoroResponse>.Failure("Session not found.");
-        if (parent.Status != PomodoroStatus.Running && parent.Status != PomodoroStatus.Paused)
-            return Result<StopPomodoroResponse>.Failure("This session is not active and cannot be stopped.");
+        if (parent == null) return CommonErrors.NotFound;
+        if (parent.Status != PomodoroStatus.Running && parent.Status != PomodoroStatus.Paused) return PomodoroErrors.SessionCannotStopped;
 
         parent.Stop();
         await repository.SaveAsync();
@@ -95,7 +95,7 @@ public class PomodoroManager(
         var parent = await repository.FindSkippableBreakAsync(parentId, childId);
         if (parent == null)
         {
-            return Result<SkipBreakResponse>.Failure("Break session not found.");
+            return CommonErrors.NotFound;
         }
 
         parent.SkipBreak(childId);
@@ -109,11 +109,8 @@ public class PomodoroManager(
     {
         var result = await repository.DeleteSessionAsync(parentId);
 
-        if (!result)
-        {
-            return Result.Failure("No rows were affected.");
-        }
-
+        if (!result) return CommonErrors.NotFound;
+        
         return Result.Success();
     }
 }

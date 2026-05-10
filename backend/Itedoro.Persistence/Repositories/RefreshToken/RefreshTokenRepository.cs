@@ -30,6 +30,7 @@ public class RefreshTokenRepository(ItedoroDbContext context) : Repository<Itedo
         {
             Context.RefreshTokens.RemoveRange(expiredTokens);
         }
+        await Context.SaveChangesAsync();
     }
     
     async Task IRefreshTokenRepository.RemoveAllExpiredTokensAsync()
@@ -42,5 +43,7 @@ public class RefreshTokenRepository(ItedoroDbContext context) : Repository<Itedo
         {
             Context.RefreshTokens.RemoveRange(expiredTokens);
         }
+
+        await Context.SaveChangesAsync();
     }
 }

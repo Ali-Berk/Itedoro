@@ -4,6 +4,7 @@ using Itedoro.Application.Common.Shared.Results;
 using Itedoro.Application.Services.AuthServices.RegisterService.Interfaces;
 using Itedoro.Application.Services.AuthServices.Dtos.Requests;
 using Itedoro.Application.Repositories;
+using Itedoro.Application.Services.AuthServices.Errors;
 
 namespace Itedoro.Application.Services.AuthServices.RegisterService;
 public class RegisterManager(
@@ -15,10 +16,7 @@ public class RegisterManager(
     public async Task<Result> RegisterAsync(RegisterRequest request)
     {
         
-        if (await repository.CheckIfUserExistsAsync(request.Username, request.Email))
-        {
-            return Result.Failure("User already exists.");
-        }
+        if (await repository.CheckIfUserExistsAsync(request.Username, request.Email)) return AuthErrors.UserExist;
         
         var user = new User(request.Username, request.Email, "placeholder", request.Name, request.Surname);
         

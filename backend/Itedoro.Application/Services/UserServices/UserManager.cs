@@ -1,8 +1,10 @@
+using Itedoro.Application.Common.Errors;
 using Itedoro.Application.Services.UserServices.Dtos.Requests;
 using Itedoro.Application.Services.UserServices.Dtos.Responses;
 using Itedoro.Application.Services.UserServices.Interfaces;
 using Itedoro.Application.Common.Shared.Results;
 using Itedoro.Application.Repositories;
+using Itedoro.Application.Services.UserServices.Errors;
 using Itedoro.Application.Services.UserServices.Mappers;
 using Itedoro.Application.Services.Utils;
 using Itedoro.Domain.Entities.Users;
@@ -22,10 +24,7 @@ namespace Itedoro.Application.Services.UserServices
         public async Task<Result<GetMeResponse>> GetMeAsync(Guid userId, CancellationToken cancellationToken)
         {
             var user = await repository.GetByIdAsync(userId);
-            if (user == null)
-            {
-                return Result<GetMeResponse>.Failure("User Not Found");
-            }
+            if (user == null) return CommonErrors.NotFound;
             var weekId = DateHelper.GetWeekId();
             var weeklyStats = await weekStat.GetByUserAndWeekAsync(user.Id, weekId) ?? new UserWeekStat(0,0,0, 0, weekId, userId);
             var totalStats = await totalStat.GetByUserIdAsync(userId) ?? new UserTotalStat(0,0,userId);
@@ -38,7 +37,7 @@ namespace Itedoro.Application.Services.UserServices
             var user = await repository.GetByIdAsync(userId);
             if (user == null)
             {
-                return Result<UpdateMeResponse>.Failure("User not exist");
+                return CommonErrors.NotFound;
             }
 
             user.UpdateProfile(request.Name, request.Surname);
@@ -51,16 +50,10 @@ namespace Itedoro.Application.Services.UserServices
         public async Task<Result> UpdatePasswordAsync(Guid userId, UpdatePasswordRequest request)
         {
             var user = await repository.GetByIdAsync(userId);
-            if (user == null)
-            {
-                return Result.Failure("User Not Found");
-            }
+            if (user == null) return CommonErrors.NotFound;
 
             var isVerified = hasher.VerifyHashedPassword(user, user.PasswordHash, request.CurrentPassword);
-            if (request.NewPassword == request.CurrentPassword || (isVerified is PasswordVerificationResult.Failed))
-            {
-                return Result.Failure("Current Password Mismatch.");
-            }
+            if (request.NewPassword == request.CurrentPassword || (isVerified is PasswordVerificationResult.Failed)) return UserErrors.PasswordsMissmatch;
             
             var newPasswordHash = hasher.HashPassword(user, request.NewPassword);
             
@@ -75,7 +68,7 @@ namespace Itedoro.Application.Services.UserServices
             var user = await repository.GetByIdAsync(userId);
             if (user == null)
             {
-                return Result.Failure("User Not Found");
+                return CommonErrors.NotFound;
             }
             user.SoftDelete();
             await repository.SaveAsync();
@@ -87,7 +80,7 @@ namespace Itedoro.Application.Services.UserServices
             var user = await repository.GetByUserNameAsync(userName, cancellationToken);
             if (user == null)
             {
-                return Result<GetUserResponse>.Failure("User Not Found");
+                return CommonErrors.NotFound;
             }
 
             var mappedUser = user.GetUserResponseMapper();
@@ -100,7 +93,7 @@ namespace Itedoro.Application.Services.UserServices
 
             if (user == null)
             {
-                return Result.Failure("User Not Found");
+                return CommonErrors.NotFound;
             }
             
             repository.Delete(user);
@@ -112,10 +105,7 @@ namespace Itedoro.Application.Services.UserServices
         {
             var user = await repository.GetByIdAsync(userId);
             var role = await roleRepository.GetByNameAsync(request.Role);
-            if (user == null || role == null)
-            {
-                return Result.Failure("Something wrong happen.");
-            }
+            if (user == null || role == null) return CommonErrors.UpdateRequestEmpty;
 
             user.AssignRole(role.Id);
             await repository.SaveAsync();
@@ -127,7 +117,7 @@ namespace Itedoro.Application.Services.UserServices
             var user = await repository.GetByIdAsync(userId);
             if (user == null)
             {
-                return Result<UpdateUserResponse>.Failure("User Not Found");
+                return CommonErrors.NotFound;
             }
             user.UpdateProfile(request.Name, request.Surname);
             await repository.SaveAsync();

@@ -9,6 +9,7 @@ using System.IdentityModel.Tokens.Jwt;
 using Microsoft.Extensions.Configuration;
 using Itedoro.Application.Services.AuthServices.TokenService.Helpers;
 using Itedoro.Application.Repositories;
+using Itedoro.Application.Services.AuthServices.Errors;
 using Itedoro.Application.Services.AuthServices.TokenService.Interfaces;
 
 namespace Itedoro.Application.Services.AuthServices.TokenService;
@@ -77,7 +78,7 @@ public class TokenManager : ITokenService
 
         if (exist == null || exist.IsExpired)
         {
-            return Result<string>.Failure("Invalid Refresh Token.");
+            return AuthErrors.InvalidRefreshToken;
         }
         exist.Revoke();
         

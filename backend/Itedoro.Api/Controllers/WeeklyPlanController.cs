@@ -1,4 +1,3 @@
-using Itedoro.Api.Extensions;
 using Itedoro.Api.Services.CurrentUser;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
@@ -46,7 +45,7 @@ ICurrentUserService currentUserService
          var result = await weeklyPlanManager.UpdatePlan(userId, updatePlanRequest);
          if (result.IsFailure)
          {
-             return NotFound(result.Errors);
+             return NotFound(result.Error);
          }
          return Ok(result);
      }
@@ -77,7 +76,7 @@ ICurrentUserService currentUserService
          var result = await weeklyPlanManager.CreatePlan(userId, createPlanRequest);
          if (result.IsFailure)
          {
-             return NotFound(result.Errors);
+             return NotFound(result.Error);
          }
          return Ok(result.Value);
      }
@@ -95,7 +94,7 @@ ICurrentUserService currentUserService
          var result = await weeklyPlanManager.DeletePlanItem(userId, planItemId);
          if (result.IsFailure)
          {
-             return NotFound(result.Errors);
+             return NotFound(result.Error);
          }
          return Ok(result);
      }

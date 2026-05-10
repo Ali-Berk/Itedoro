@@ -33,11 +33,7 @@ public class PomodoroController(
             return Ok(result.Value);
         }
 
-        return BadRequest(new
-        {
-            message = "Pomodoro session could not be created.",
-            errors = result.Errors
-        });
+        return BadRequest(result.Error);
     }
     [HttpPatch("pause/{parentPomodoroSessionId}")]
     [ProducesResponseType(typeof(PausePomodoroResponse), StatusCodes.Status200OK)]
@@ -54,7 +50,7 @@ public class PomodoroController(
         var result = await pomodoroService.PauseSessionAsync(userId, parentPomodoroSessionId);
         if (result.IsFailure)
         {
-            return BadRequest(result.Errors);
+            return BadRequest(result.Error);
         }
         return Ok(result.Value);
     }
@@ -74,7 +70,7 @@ public class PomodoroController(
         var result = await pomodoroService.ResumeSessionAsync(userId, parentPomodoroSessionId);
         if (result.IsFailure)
         {
-            return BadRequest(result.Errors);
+            return BadRequest(result.Error);
         }
         return Ok(result.Value);
     }
@@ -94,7 +90,7 @@ public class PomodoroController(
         var result = await pomodoroService.StopSessionAsync(userId, parentPomodoroSessionId);
         if (result.IsFailure)
         {
-            return BadRequest(result.Errors);
+            return BadRequest(result.Error);
         }
 
         return Ok(result.Value);
@@ -127,7 +123,7 @@ public class PomodoroController(
         var result = await pomodoroService.SkipBreakAsync(parentPomodoroSessionId, childPomodoroSessionId);
         if (result.IsFailure)
         {
-            return NotFound(result.Errors);
+            return NotFound(result.Error);
         }
         return Ok(result.Value);
     }
@@ -149,7 +145,7 @@ public class PomodoroController(
         var result = await pomodoroService.DeleteSessionAsync(parentPomodoroSessionId);
         if (result.IsFailure)
         {
-            return BadRequest(result.Errors);
+            return BadRequest(result.Error);
         }
         return Ok();
     }

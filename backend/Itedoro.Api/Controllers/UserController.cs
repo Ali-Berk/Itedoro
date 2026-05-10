@@ -27,7 +27,7 @@ public class UserController(
         var result = await userService.GetMeAsync(userId, cancellationToken);
         if (result.IsFailure)
         {
-            return BadRequest(result.Errors);
+            return BadRequest(result.Error);
         }
 
         return Ok(result.Value);
@@ -44,7 +44,7 @@ public class UserController(
         var result = await userService.UpdateMeAsync(userId, request);
         if (result.IsFailure)
         {
-            return BadRequest(result.Errors);
+            return BadRequest(result.Error);
         }
 
         return Ok(result.Value);
@@ -61,7 +61,7 @@ public class UserController(
         var result = await userService.UpdatePasswordAsync(userId, request);
         if (result.IsFailure)
         {
-            return BadRequest(result.Errors);
+            return BadRequest(result.Error);
         }
 
         return NoContent();
@@ -78,7 +78,7 @@ public class UserController(
         var result = await userService.DeleteMeAsync(userId);
         if (result.IsFailure)
         {
-            return BadRequest(result.Errors);
+            return BadRequest(result.Error);
         }
 
         return NoContent();

@@ -1,3 +1,4 @@
+using Itedoro.Application.Common.Errors;
 using Itedoro.Application.Common.Shared.Results;
 using Itedoro.Application.Services.WeeklyPlanService.Dtos.Requests;
 using Itedoro.Application.Services.WeeklyPlanService.Dtos.Responses;
@@ -27,10 +28,7 @@ public class WeeklyPlanManager(
     public async Task<Result> UpdatePlan(Guid userId, UpdatePlanRequest request)
     {
         var planItem = await repository.GetByIdAsync(request.Id, userId);
-        if (planItem == null)
-        {
-            return Result.Failure("Plan item not found.");
-        }
+        if (planItem == null) return CommonErrors.NotFound;
         
         planItem.UpdatePlan(
             request.Title,
@@ -46,10 +44,8 @@ public class WeeklyPlanManager(
     {
         
         var planItem = await repository.GetByIdAsync(planId, userId);
-        if (planItem == null)
-        {
-            return Result.Failure("Plan item not found.");
-        }
+        if (planItem == null) return CommonErrors.NotFound;
+        
         planItem.UpdateStatus();
         await repository.SaveAsync();
         return Result.Success();
@@ -58,10 +54,8 @@ public class WeeklyPlanManager(
     {
         var selectedPlan = await repository.GetByIdAsync(planItemId, userId);
         
-        if (selectedPlan == null)
-        {
-            return Result.Failure("No plans found");
-        }
+        if (selectedPlan == null) return CommonErrors.NotFound;
+
         repository.Delete(selectedPlan);
         await repository.SaveAsync();
         return Result.Success();

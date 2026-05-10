@@ -25,7 +25,7 @@ public class AuthController(
         var result = await registerService.RegisterAsync(request);
         if (result.IsFailure)
         {
-            return BadRequest(result.Errors);
+            return BadRequest(result.Error);
         }
         return Created();
     }
@@ -37,7 +37,7 @@ public class AuthController(
         var result = await loginService.LoginAsync(request);
         if(result.IsFailure)
         {
-            return BadRequest(result.Errors);
+            return BadRequest(result.Error);
         }
         
         Response.SetRefreshTokenCookie(result.Value!.RefreshToken, configuration);
@@ -54,7 +54,7 @@ public class AuthController(
         var result = await tokenService.RefreshAsync(refreshToken);
         if (result.IsFailure)
         {
-            return BadRequest(result.Errors);
+            return BadRequest(result.Error);
         }
         return Ok(result.Value);
     }
