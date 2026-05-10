@@ -43,7 +43,7 @@ public class TokenManager : ITokenService
         {
             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new Claim(ClaimTypes.Name, user.Username),
-            new Claim(ClaimTypes.Role, user.Role.Name ?? "User"),
+            new Claim(ClaimTypes.Role, user.Role?.Name ?? "User"),
         };
 
         var credentials = new SigningCredentials(_key, SecurityAlgorithms.HmacSha512);

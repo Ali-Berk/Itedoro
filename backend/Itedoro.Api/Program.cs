@@ -53,6 +53,10 @@ else
     app.UseExceptionHandler();
 }
 
+app.UseRouting();
+
+// Disabling HTTPS redirection in local Linux development
+// environment to bypass SSL/TLS configuration complexity.
 // app.UseHttpsRedirection(); 
 app.UseCors("CorsPolicy");
 app.UseAuthentication();

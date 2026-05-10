@@ -1,23 +1,55 @@
 namespace Itedoro.Application.Common.Shared.Results;
-
 public class Result
 {
-    protected bool _success;
-    public IEnumerable<string> Errors { get; protected set; } = [];
+    private readonly Error _error;
+    private readonly bool _isSuccess;
 
-    public bool IsSuccess => _success;
-    public bool IsFailure => !_success;
+    public bool IsSuccess => _isSuccess;
+    public bool IsFailure => !_isSuccess;
+    public Error Error => _error;
 
-    public static Result Success() => new() { _success = true };
-    public static Result Failure(string[] errors) => new() { _success = false, Errors = errors };
-    public static Result Failure(string error) => new() { _success = false, Errors = new[] { error } };
+    protected Result()
+    {
+        _isSuccess = true;
+        _error = Error.None;
+    }
+
+    protected Result(Error error)
+    {
+        _isSuccess = false;
+        _error = error;
+    }
+
+    public static Result Success() => new();
+    public static Result Failure(Error error) => new(error);
+
+    public static implicit operator Result(Error error) => new(error);
 }
 
-public class Result<T> : Result
+public class Result<TValue> : Result
 {
-    public T? Value { get; private set; }
+    private readonly TValue? _value;
 
-    public static Result<T> Success(T data) => new() { _success = true, Value = data };
-    public static new Result<T> Failure(string[] errors) => new() { _success = false, Errors = errors };
-    public static new Result<T> Failure(string error) => new() { _success = false, Errors = new[] { error } };
+    public TValue? Value => _value;
+
+    private Result(TValue value) : base()
+    {
+        _value = value;
+    }
+
+    private Result(Error error) : base(error)
+    {
+        _value = default;
+    }
+
+    public static Result<TValue> Success(TValue value) => new(value);
+    public static new Result<TValue> Failure(Error error) => new(error);
+
+    public static implicit operator Result<TValue>(TValue value) => new(value);
+    public static implicit operator Result<TValue>(Error error) => new(error);
+}
+
+public record class Error(string Code, string Description)
+{
+    public static Error None => new(String.Empty, String.Empty);
 }

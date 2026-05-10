@@ -11,13 +11,13 @@ public class TokenCleanupDaemon(
     {
         while (!stoppingToken.IsCancellationRequested)
         {
-            await Task.Delay(TimeSpan.FromHours(1), stoppingToken);
 
             using (var scope = serviceProvider.CreateScope())
             {
                 var repository = scope.ServiceProvider.GetRequiredService<IRefreshTokenRepository>();
                 await repository.RemoveAllExpiredTokensAsync();
             }
+            await Task.Delay(TimeSpan.FromHours(1), stoppingToken);
         }
     }
 }
